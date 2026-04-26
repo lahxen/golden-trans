@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import heroImage from '../images/image01.png'
 import ChatComponent from './components/ChatComponent'
 import FlightTracker from './components/FlightTracker'
@@ -71,11 +72,11 @@ function App() {
         <div className="brand">Golden Trans</div>
         <div className="nav-links">
           <a href="#services">Services</a>
-          <a href="#fleet">Fleet</a>
+          <Link to="/fleet">Fleet</Link>
           <a href="#booking">Booking</a>
           <a href="#contact">Contact</a>
         </div>
-        <a className="nav-cta" href="#booking">Book Now</a>
+        <Link className="nav-cta" to="/booking">Book Now</Link>
       </nav>
 
       {/* ── HERO ── */}
@@ -90,7 +91,7 @@ function App() {
           </p>
           <div className="hero-actions">
             <a className="btn btn-primary" href="#booking">Book Your Ride</a>
-            <a className="btn btn-secondary" href="#fleet">View Fleet</a>
+            <Link className="btn btn-secondary" to="/fleet">View Fleet</Link>
             <button className="btn btn-secondary" type="button" onClick={() => setShowChat(s => !s)}>
               {showChat ? 'Hide Chat' : 'Chat with Us'}
             </button>
