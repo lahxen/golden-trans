@@ -1,4 +1,4 @@
-const API = 'http://localhost:5000/api/bookings'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/bookings'
 const STORAGE_KEY = 'gt_bookings'
 
 export async function saveBooking(data) {
