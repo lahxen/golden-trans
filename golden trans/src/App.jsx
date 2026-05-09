@@ -8,147 +8,169 @@ import minibusImg from '../public/images/minibus.jpg'
 import chauffeurImg from '../public/images/chauffeur.jpg'
 import selfdriveImg from '../public/images/selfdrive.jpg'
 import { VEHICLES, LANGUAGES } from './config/routes'
-import { CITIES, AIRPORTS } from './config/destinations'
+import { CITIES } from './config/destinations'
 
-const DEFAULT_FORM = {
-  mode: 'with_driver',
-  name: '', phone: '', email: '',
-  pickupCity: '', returnCity: '', destination: '',
-  pickupDate: '', pickupTime: '',
-  returnDate: '', returnTime: '',
-  vehicle: 'sedan',
-  passengers: '1',
-  language: 'Français',
-  notes: '',
-}
+const MODES = [
+  { id: 'with_driver', icon: '🧑‍✈️', label: 'Avec chauffeur', desc: 'Transfert privé — prise en charge à votre adresse' },
+  { id: 'without_driver', icon: '🚘', label: 'Sans chauffeur', desc: 'Location libre — conduisez par vous-même' },
+]
 
-const FLEET_DATA = [
-  { id: 'sedan', label: 'SEDAN', desc: 'Berline confortable pour trajets urbains et professionnels.', img: sedanImg, capacity: '1-3 pers.' },
-  { id: 'suv', label: 'SUV', desc: 'SUV spacieux pour routes et autoroutes en tout confort.', img: suvImg, capacity: '1-5 pers.' },
-  { id: '4x4', label: '4X4', desc: '4x4 robuste pour pistes, montagnes et désert.', img: fourxfourImg, capacity: '1-5 pers.' },
-  { id: 'van', label: 'VAN', desc: 'Van pour groupes et familles, idéal pour les bagages.', img: vanImg, capacity: '1-7 pers.' },
-  { id: 'minibus', label: 'MINIBUS', desc: 'Minibus pour groupes jusqu\'à 15 personnes.', img: minibusImg, capacity: '8-15 pers.' },
-  { id: 'luxe', label: 'LUXE', desc: 'Véhicule prestige pour un voyage haut de gamme.', img: luxuryImg, capacity: '1-5 pers.' },
+const FLEET = [
+  { id: 'sedan', label: 'SEDAN', desc: 'Berline confortable pour trajets urbains et professionnels.', img: sedanImg, cap: '1-3' },
+  { id: 'suv', label: 'SUV', desc: 'SUV spacieux pour routes et autoroutes en tout confort.', img: suvImg, cap: '1-5' },
+  { id: '4x4', label: '4X4', desc: '4x4 robuste pour pistes, montagnes et désert.', img: fourxfourImg, cap: '1-5' },
+  { id: 'van', label: 'VAN', desc: 'Van pour groupes et familles, idéal bagages.', img: vanImg, cap: '1-7' },
+  { id: 'minibus', label: 'MINIBUS', desc: 'Minibus pour groupes jusqu\'à 15 personnes.', img: minibusImg, cap: '8-15' },
+  { id: 'luxe', label: 'LUXE', desc: 'Véhicule prestige pour un voyage haut de gamme.', img: luxuryImg, cap: '1-5' },
 ]
 
 const REVIEWS = [
-  { name: 'Sophie M.', text: 'Service impeccable, chauffeur ponctuel et véhicule très propre.', rating: 5, city: 'Casablanca' },
-  { name: 'Karim B.', text: 'Excellent trajet Marrakech. Prix transparent, conduite sécurisée.', rating: 5, city: 'Marrakech' },
-  { name: 'Emma W.', text: 'Perfect airport transfer. Driver waited despite flight delay!', rating: 5, city: 'Rabat' },
-  { name: 'Youssef A.', text: '4x4 pour le désert — véhicule en super état, voyage inoubliable.', rating: 5, city: 'Merzouga' },
+  { name: 'Sophie M.', text: 'Service impeccable, chauffeur ponctuel et véhicule très propre.', city: 'Casablanca' },
+  { name: 'Karim B.', text: 'Excellent trajet Marrakech. Prix transparent, conduite sécurisée.', city: 'Marrakech' },
+  { name: 'Emma W.', text: 'Perfect airport transfer. Driver waited despite flight delay!', city: 'Rabat' },
 ]
 
+const DEFAULT = {
+  mode: 'with_driver',
+  name: '', phone: '', email: '',
+  pickupCity: '', returnCity: '',
+  pickupDate: '', pickupTime: '',
+  returnDate: '', returnTime: '',
+  vehicle: 'sedan', passengers: '1',
+  language: 'Français', notes: '',
+}
+
 export default function App() {
-  const [form, setForm] = useState(DEFAULT_FORM)
+  const [f, setF] = useState(DEFAULT)
   const [confirmed, setConfirmed] = useState(null)
-  const [step, setStep] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
 
-  const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
+  const h = e => setF(p => ({ ...p, [e.target.name]: e.target.value }))
 
-  const handleSubmit = (e) => {
+  const submit = e => {
     e.preventDefault()
-    setConfirmed({ ...form, ref: `GT-${Date.now()}`, createdAt: new Date().toISOString() })
+    setConfirmed({ ...f, ref: `GT-${Date.now()}`, createdAt: new Date().toISOString() })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const showStep = (s) => {
-    setStep(s)
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
-    <div data-theme="navy" className="min-h-screen bg-base-200">
+    <div data-theme="navy" className="min-h-screen bg-white">
 
-      {/* ── NAVBAR ── */}
-      <div className="navbar bg-base-100 shadow-sm sticky top-0 z-50 px-4 lg:px-8">
-        <div className="flex-1">
-          <a href="#hero" className="btn btn-ghost text-xl font-bold gap-2 px-2">
-            <span className="text-secondary text-2xl">✦</span>
-            Golden Trans
-          </a>
-        </div>
-        <div className="hidden md:flex gap-1">
-          <a href="#services" className="btn btn-ghost btn-sm">Services</a>
-          <a href="#fleet" className="btn btn-ghost btn-sm">Flotte</a>
-          <a href="#booking" className="btn btn-ghost btn-sm">Réservation</a>
-          <a href="#reviews" className="btn btn-ghost btn-sm">Avis</a>
-          <a href="#contact" className="btn btn-ghost btn-sm">Contact</a>
-        </div>
-        <a href="#booking" className="btn btn-primary btn-sm ml-2">Réserver</a>
-      </div>
-
-      {/* ── HERO ── */}
-      <section id="hero" className="hero min-h-[80vh] bg-base-100">
-        <div className="hero-content flex-col lg:flex-row-reverse gap-8 max-w-6xl">
-          <div className="lg:w-1/2">
-            <img src={chauffeurImg} className="rounded-2xl shadow-2xl w-full object-cover max-h-[450px]" alt="Golden Trans" />
-          </div>
-          <div className="lg:w-1/2">
-            <span className="badge badge-secondary text-sm mb-4 px-4 py-3">Location & Transfert au Maroc</span>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-              Voyagez en Toute Liberté
-            </h1>
-            <p className="py-6 text-base-content/70 text-lg">
-              Berlines, SUV, 4x4, Vans, Minibus ou Luxe — choisissez votre véhicule
-              avec ou sans chauffeur. Réservez en ligne, payez à l'arrivée.
-            </p>
-            <div className="flex flex-wrap gap-3 mb-6">
-              <a href="#booking" className="btn btn-primary btn-lg">Réserver maintenant</a>
-              <a href="#fleet" className="btn btn-outline btn-lg">Voir la flotte</a>
+      {/* ══ NAVBAR ══ */}
+      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <a href="#hero" className="flex items-center gap-2 no-underline">
+              <span className="text-2xl text-secondary font-serif font-bold">✦</span>
+              <span className="text-lg font-bold tracking-tight">Golden Trans</span>
+            </a>
+            <div className="hidden md:flex items-center gap-6">
+              {[['Services', '#services'], ['Flotte', '#fleet'], ['Réservation', '#reservation'], ['Avis', '#avis'], ['Contact', '#contact']].map(([l, h]) => (
+                <a key={l} href={h} className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">{l}</a>
+              ))}
+              <a href="#reservation" className="btn btn-primary btn-sm px-5 rounded-lg">Réserver</a>
             </div>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <span className="badge badge-ghost badge-lg">📍 Tout le Maroc</span>
-              <span className="badge badge-ghost badge-lg">💬 WhatsApp 5min</span>
-              <span className="badge badge-ghost badge-lg">💰 Paiement à l'arrivée</span>
-              <span className="badge badge-ghost badge-lg">⭐ 4.9/5</span>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden btn btn-ghost btn-sm">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} /></svg>
+            </button>
+          </div>
+          {menuOpen && (
+            <div className="md:hidden pb-4 space-y-2">
+              {[['Services', '#services'], ['Flotte', '#fleet'], ['Réservation', '#reservation'], ['Avis', '#avis'], ['Contact', '#contact']].map(([l, h]) => (
+                <a key={l} href={h} onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">{l}</a>
+              ))}
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* ══ HERO ══ */}
+      <section id="hero" className="relative bg-gradient-to-br from-primary to-primary/90 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
+        <div className="max-w-6xl mx-auto px-4 lg:px-8 py-16 lg:py-20 relative">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(i => <span key={i} className="text-secondary text-sm">★</span>)}
+              </div>
+              <span className="text-white/70 text-sm">4.9/5 — 120+ avis</span>
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
+              Location de véhicules au Maroc
+            </h1>
+            <p className="mt-4 text-white/80 text-lg leading-relaxed max-w-xl">
+              Berlines, SUV, 4x4, Vans, Minibus ou Luxe — avec ou sans chauffeur. Réservez en ligne, payez à l'arrivée.
+            </p>
+            <div className="flex flex-wrap gap-3 mt-8">
+              <a href="#reservation" className="btn bg-white text-primary hover:bg-gray-100 border-0 px-7 font-semibold shadow-lg">Réserver maintenant</a>
+              <a href="#fleet" className="btn btn-outline border-white/30 text-white hover:bg-white/10 hover:border-white px-7">Notre flotte</a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── SERVICES ── */}
-      <section id="services" className="py-16 px-4 max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold">Pourquoi Golden Trans ?</h2>
-          <p className="text-base-content/60 mt-2">Le transport au Maroc simplifié</p>
-        </div>
-        <div className="grid md:grid-cols-4 gap-6">
+      {/* ══ TRUST BANNER ══ */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 lg:px-8 py-4 flex flex-wrap items-center justify-center gap-6 text-sm">
           {[
-            { icon: '🚗', title: '6 Types de Véhicules', desc: 'De la berline au minibus, trouvez le véhicule idéal pour chaque voyage.' },
-            { icon: '📍', title: 'Tout le Maroc', desc: 'De Tanger à Dakhla, toutes les villes et destinations touristiques.' },
-            { icon: '💬', title: 'WhatsApp Instantané', desc: 'Réponse sous 5 minutes après votre réservation.' },
-            { icon: '💰', title: 'Paiement Flexible', desc: 'Payez à la livraison ou en ligne, choisissez votre option.' },
-          ].map((s, i) => (
-            <div key={i} className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="card-body items-center text-center">
-                <span className="text-4xl mb-2">{s.icon}</span>
-                <h3 className="card-title text-lg">{s.title}</h3>
-                <p className="text-base-content/60 text-sm">{s.desc}</p>
-              </div>
-            </div>
+            { icon: '📍', text: 'Tout le Maroc' },
+            { icon: '💬', text: 'WhatsApp sous 5 min' },
+            { icon: '💰', text: 'Paiement à l\'arrivée' },
+            { icon: '🔄', text: 'Annulation gratuite 24h' },
+            { icon: '⭐', text: 'Service certifié' },
+          ].map((t, i) => (
+            <span key={i} className="flex items-center gap-1.5 text-gray-600 font-medium">
+              <span className="text-base">{t.icon}</span> {t.text}
+            </span>
           ))}
         </div>
+      </div>
+
+      {/* ══ SERVICES ══ */}
+      <section id="services" className="py-16 lg:py-20 px-4 lg:px-8 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-xl mx-auto mb-12">
+            <span className="text-secondary font-semibold text-sm tracking-widest uppercase">Pourquoi nous choisir</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 text-gray-900">Simple, fiable, transparent</h2>
+            <p className="text-gray-500 mt-3">Des véhicules récents, des prix clairs, un service disponible 24h/24.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              { icon: '🚗', title: 'Large choix', desc: '6 catégories de véhicules pour tous les besoins et tous les budgets.' },
+              { icon: '📍', title: 'Couverture nationale', desc: 'De Tanger à Dakhla, toutes les villes et destinations touristiques.' },
+              { icon: '💬', title: 'WhatsApp direct', desc: 'Réponse rapide sous 5 minutes après votre réservation.' },
+              { icon: '💰', title: 'Paiement flexible', desc: 'Payez à la livraison ou en ligne. Acompte possible.' },
+            ].map((s, i) => (
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <span className="text-2xl block mb-3">{s.icon}</span>
+                <h3 className="font-bold text-gray-900 mb-1.5">{s.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* ── FLEET ── */}
-      <section id="fleet" className="py-16 px-4 bg-base-100">
+      {/* ══ FLEET ══ */}
+      <section id="fleet" className="py-16 lg:py-20 px-4 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold">Notre Flotte</h2>
-            <p className="text-base-content/60 mt-2">6 catégories pour tous vos besoins</p>
+          <div className="text-center max-w-xl mx-auto mb-12">
+            <span className="text-secondary font-semibold text-sm tracking-widest uppercase">Notre flotte</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 text-gray-900">6 catégories de véhicules</h2>
+            <p className="text-gray-500 mt-3">Des véhicules récents et bien entretenus pour chaque type de voyage.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {FLEET_DATA.map(car => (
-              <div key={car.id} className="card bg-base-200 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1">
-                <figure className="h-44 overflow-hidden">
-                  <img src={car.img} alt={car.label} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                </figure>
-                <div className="card-body">
-                  <div className="flex justify-between items-start">
-                    <h3 className="card-title text-lg">{car.label}</h3>
-                    <span className="badge badge-primary badge-sm">{car.capacity}</span>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FLEET.map(car => (
+              <div key={car.id} className="group bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
+                <div className="h-44 overflow-hidden">
+                  <img src={car.img} alt={car.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h3 className="font-bold text-gray-900">{car.label}</h3>
+                    <span className="text-xs font-semibold bg-primary/5 text-primary px-2 py-0.5 rounded-full">{car.cap} pers.</span>
                   </div>
-                  <p className="text-base-content/60 text-sm">{car.desc}</p>
+                  <p className="text-gray-500 text-sm leading-relaxed">{car.desc}</p>
                 </div>
               </div>
             ))}
@@ -156,240 +178,181 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── BOOKING ── */}
-      <section id="booking" className="py-16 px-4 max-w-6xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold">Réserver votre véhicule</h2>
-          <p className="text-base-content/60 mt-2">Remplissez le formulaire et recevez votre confirmation par WhatsApp</p>
-        </div>
-
-        {confirmed ? (
-          /* ── CONFIRMATION ── */
-          <div className="card bg-base-100 shadow-lg max-w-2xl mx-auto">
-            <div className="card-body items-center text-center">
-              <div className="text-5xl mb-4">✅</div>
-              <span className="badge badge-success badge-lg mb-2">Réservation confirmée</span>
-              <h3 className="text-2xl font-bold">Merci, {confirmed.name} !</h3>
-              <p className="text-base-content/60">Votre demande a été enregistrée. Vous recevrez une confirmation sous 5 min sur WhatsApp.</p>
-              <div className="bg-base-200 rounded-xl p-6 w-full max-w-md text-left mt-4 space-y-3">
-                <div className="flex justify-between"><span className="text-base-content/60">Réf</span><strong>{confirmed.ref}</strong></div>
-                <div className="flex justify-between"><span className="text-base-content/60">Mode</span><strong>{confirmed.mode === 'with_driver' ? 'Avec chauffeur' : 'Sans chauffeur'}</strong></div>
-                {confirmed.pickupCity && <div className="flex justify-between"><span className="text-base-content/60">De</span><strong>{confirmed.pickupCity}</strong></div>}
-                {confirmed.returnCity && <div className="flex justify-between"><span className="text-base-content/60">À</span><strong>{confirmed.returnCity}</strong></div>}
-                <div className="flex justify-between"><span className="text-base-content/60">Date</span><strong>{confirmed.pickupDate} à {confirmed.pickupTime}</strong></div>
-                <div className="flex justify-between"><span className="text-base-content/60">Véhicule</span><strong>{confirmed.vehicle.toUpperCase()}</strong></div>
-                <div className="flex justify-between"><span className="text-base-content/60">Passagers</span><strong>{confirmed.passengers}</strong></div>
-              </div>
-              <button className="btn btn-primary mt-6" onClick={() => { setConfirmed(null); setForm(DEFAULT_FORM) }}>
-                Nouvelle réservation
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* ── MODE SELECTION ── */}
-            <div className="md:col-span-1 space-y-4">
-              <div className="card bg-base-100 shadow-sm">
-                <div className="card-body">
-                  <h3 className="card-title text-base">Mode de réservation</h3>
-                  <div className="flex flex-col gap-3 mt-2">
-                    <button
-                      className={`btn ${form.mode === 'with_driver' ? 'btn-primary' : 'btn-outline'} gap-3 justify-start`}
-                      onClick={() => setForm(p => ({ ...p, mode: 'with_driver' }))}
-                    >
-                      <span className="text-xl">🧑‍✈️</span>
-                      <div className="text-left">
-                        <div className="font-bold">Avec chauffeur</div>
-                        <div className="text-xs opacity-70">Transfert privé, prise en charge à votre adresse</div>
-                      </div>
-                    </button>
-                    <button
-                      className={`btn ${form.mode === 'without_driver' ? 'btn-primary' : 'btn-outline'} gap-3 justify-start`}
-                      onClick={() => setForm(p => ({ ...p, mode: 'without_driver' }))}
-                    >
-                      <span className="text-xl">🚘</span>
-                      <div className="text-left">
-                        <div className="font-bold">Sans chauffeur</div>
-                        <div className="text-xs opacity-70">Location de voiture, liberté de conduire</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card bg-primary text-primary-content shadow-sm">
-                <div className="card-body">
-                  <h3 className="card-title text-sm">💬 Questions ?</h3>
-                  <p className="text-xs opacity-80">Contactez-nous directement sur WhatsApp</p>
-                  <a href="https://wa.me/212600000000" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm mt-2">
-                    Nous écrire
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* ── FORM ── */}
-            <form onSubmit={handleSubmit} className="md:col-span-2 card bg-base-100 shadow-sm">
-              <div className="card-body">
-                {form.mode === 'with_driver' ? (
-                  <>
-                    <div className="form-control">
-                      <label className="label"><span className="label-text">Lieu de prise en charge <span className="text-error">*</span></span></label>
-                      <input type="text" name="pickupCity" value={form.pickupCity} onChange={handleChange} className="input input-bordered" placeholder="Hôtel, aéroport, adresse..." required />
-                    </div>
-                    <div className="form-control">
-                      <label className="label"><span className="label-text">Destination <span className="text-error">*</span></span></label>
-                      <input type="text" name="returnCity" value={form.returnCity} onChange={handleChange} className="input input-bordered" placeholder="Ville ou lieu de destination" required />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="form-control">
-                      <label className="label"><span className="label-text">Ville de retrait <span className="text-error">*</span></span></label>
-                      <input type="text" name="pickupCity" value={form.pickupCity} onChange={handleChange} className="input input-bordered" placeholder="Ville de prise en charge" required />
-                    </div>
-                    <div className="form-control">
-                      <label className="label"><span className="label-text">Ville de retour</span></label>
-                      <input type="text" name="returnCity" value={form.returnCity} onChange={handleChange} className="input input-bordered" placeholder="Même ville si identique" />
-                    </div>
-                  </>
-                )}
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Date <span className="text-error">*</span></span></label>
-                    <input type="date" name="pickupDate" value={form.pickupDate} onChange={handleChange} className="input input-bordered" required />
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Heure <span className="text-error">*</span></span></label>
-                    <input type="time" name="pickupTime" value={form.pickupTime} onChange={handleChange} className="input input-bordered" required />
-                  </div>
-                </div>
-
-                {form.mode === 'without_driver' && (
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="form-control">
-                      <label className="label"><span className="label-text">Date de retour</span></label>
-                      <input type="date" name="returnDate" value={form.returnDate} onChange={handleChange} className="input input-bordered" />
-                    </div>
-                    <div className="form-control">
-                      <label className="label"><span className="label-text">Heure de retour</span></label>
-                      <input type="time" name="returnTime" value={form.returnTime} onChange={handleChange} className="input input-bordered" />
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Véhicule <span className="text-error">*</span></span></label>
-                    <select name="vehicle" value={form.vehicle} onChange={handleChange} className="select select-bordered" required>
-                      {VEHICLES.map(v => (
-                        <option key={v.id} value={v.id}>{v.label} — {v.maxPax} pers.</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Passagers</span></label>
-                    <select name="passengers" value={form.passengers} onChange={handleChange} className="select select-bordered">
-                      {Array.from({ length: 15 }, (_, i) => i + 1).map(n => (
-                        <option key={n} value={n}>{n}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Nom complet <span className="text-error">*</span></span></label>
-                    <input type="text" name="name" value={form.name} onChange={handleChange} className="input input-bordered" required />
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Téléphone <span className="text-error">*</span></span></label>
-                    <input type="tel" name="phone" value={form.phone} onChange={handleChange} className="input input-bordered" placeholder="+212 6XX XXX XXX" required />
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Email</span></label>
-                    <input type="email" name="email" value={form.email} onChange={handleChange} className="input input-bordered" />
-                  </div>
-                  <div className="form-control">
-                    <label className="label"><span className="label-text">Langue</span></label>
-                    <select name="language" value={form.language} onChange={handleChange} className="select select-bordered">
-                      {LANGUAGES.map(l => <option key={l}>{l}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-control">
-                  <label className="label"><span className="label-text">Notes</span></label>
-                  <textarea name="notes" value={form.notes} onChange={handleChange} className="textarea textarea-bordered" rows="2" placeholder="Sièges enfant, bagages, demande spéciale..."></textarea>
-                </div>
-
-                <button type="submit" className="btn btn-primary mt-2">
-                  Confirmer la réservation
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      </section>
-
-      {/* ── REVIEWS ── */}
-      <section id="reviews" className="py-16 px-4 bg-base-100">
+      {/* ══ BOOKING ══ */}
+      <section id="reservation" className="py-16 lg:py-20 px-4 lg:px-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold">Avis Clients</h2>
-            <p className="text-base-content/60 mt-2">Ils nous ont fait confiance</p>
+          <div className="text-center max-w-xl mx-auto mb-12">
+            <span className="text-secondary font-semibold text-sm tracking-widest uppercase">Réservation</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 text-gray-900">Prêt à réserver ?</h2>
+            <p className="text-gray-500 mt-3">Remplissez le formulaire et recevez votre confirmation par WhatsApp.</p>
           </div>
-          <div className="grid md:grid-cols-4 gap-6">
-            {REVIEWS.map((r, i) => (
-              <div key={i} className="card bg-base-200 shadow-sm">
-                <div className="card-body">
-                  <div className="rating rating-sm mb-2">
-                    {[...Array(5)].map((_, j) => (
-                      <input key={j} type="radio" className={`mask mask-star-2 bg-secondary ${j < r.rating ? 'checked' : ''}`} checked={j < r.rating} readOnly />
+
+          {confirmed ? (
+            <div className="max-w-lg mx-auto bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+              <div className="w-14 h-14 bg-success/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl text-success">✓</span>
+              </div>
+              <span className="inline-block px-3 py-0.5 rounded-full bg-success/5 text-success text-sm font-semibold mb-3">Réservation confirmée</span>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">Merci, {confirmed.name} !</h3>
+              <p className="text-gray-500 text-sm mb-6">Vous recevrez une confirmation sous 5 min sur WhatsApp.</p>
+              <div className="bg-gray-50 rounded-xl p-5 text-left space-y-2.5 text-sm mb-6">
+                {[['Référence', confirmed.ref], ['Mode', confirmed.mode === 'with_driver' ? 'Avec chauffeur' : 'Sans chauffeur'], ['De', confirmed.pickupCity], ['À', confirmed.returnCity || '—'], ['Date', `${confirmed.pickupDate} à ${confirmed.pickupTime}`], ['Véhicule', confirmed.vehicle.toUpperCase()], ['Passagers', confirmed.passengers]].map(([l, v]) => (
+                  <div key={l} className="flex justify-between"><span className="text-gray-400">{l}</span><span className="font-semibold text-gray-800">{v}</span></div>
+                ))}
+              </div>
+              <button className="btn btn-primary btn-block rounded-lg" onClick={() => { setConfirmed(null); setF(DEFAULT) }}>Nouvelle réservation</button>
+            </div>
+          ) : (
+            <div className="grid lg:grid-cols-5 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h3 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4">Mode de réservation</h3>
+                  <div className="space-y-3">
+                    {MODES.map(m => (
+                      <button key={m.id} onClick={() => setF(p => ({ ...p, mode: m.id }))}
+                        className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
+                          f.mode === m.id ? 'border-primary bg-primary/5' : 'border-gray-100 bg-gray-50 hover:bg-gray-100'
+                        }`}>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{m.icon}</span>
+                          <div><div className="font-bold text-sm text-gray-900">{m.label}</div><div className="text-xs text-gray-500">{m.desc}</div></div>
+                        </div>
+                      </button>
                     ))}
                   </div>
-                  <p className="text-sm text-base-content/70 italic">"{r.text}"</p>
-                  <div className="mt-2">
-                    <strong className="text-sm">{r.name}</strong>
-                    <span className="text-xs text-base-content/50 block">{r.city}</span>
-                  </div>
                 </div>
+                <div className="bg-primary rounded-xl p-6 text-white">
+                  <h4 className="font-bold text-sm mb-1">💬 Une question ?</h4>
+                  <p className="text-sm text-white/80 mb-4">Contactez-nous directement sur WhatsApp.</p>
+                  <a href="https://wa.me/212600000000" target="_blank" rel="noopener noreferrer" className="btn bg-white text-primary hover:bg-gray-100 border-0 btn-sm w-full rounded-lg font-semibold">Nous écrire</a>
+                </div>
+              </div>
+
+              <form onSubmit={submit} className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8">
+                <h3 className="font-bold text-lg text-gray-900 mb-6">Informations de réservation</h3>
+
+                {f.mode === 'with_driver' ? (
+                  <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                    <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Prise en charge <span className="text-red-500">*</span></span></label>
+                      <input type="text" name="pickupCity" value={f.pickupCity} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" placeholder="Hôtel, aéroport..." required /></div>
+                    <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Destination <span className="text-red-500">*</span></span></label>
+                      <input type="text" name="returnCity" value={f.returnCity} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" placeholder="Ville de destination" required /></div>
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                    <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Retrait <span className="text-red-500">*</span></span></label>
+                      <input type="text" name="pickupCity" value={f.pickupCity} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" placeholder="Ville" required /></div>
+                    <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Retour</span></label>
+                      <input type="text" name="returnCity" value={f.returnCity} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" placeholder="Même si identique" /></div>
+                  </div>
+                )}
+
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Date <span className="text-red-500">*</span></span></label>
+                    <input type="date" name="pickupDate" value={f.pickupDate} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" required /></div>
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Heure <span className="text-red-500">*</span></span></label>
+                    <input type="time" name="pickupTime" value={f.pickupTime} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" required /></div>
+                </div>
+
+                {f.mode === 'without_driver' && (
+                  <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                    <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Date retour</span></label>
+                      <input type="date" name="returnDate" value={f.returnDate} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" /></div>
+                    <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Heure retour</span></label>
+                      <input type="time" name="returnTime" value={f.returnTime} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" /></div>
+                  </div>
+                )}
+
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Véhicule <span className="text-red-500">*</span></span></label>
+                    <select name="vehicle" value={f.vehicle} onChange={h} className="select select-bordered bg-gray-50 border-gray-200 rounded-lg text-sm">
+                      {VEHICLES.map(v => <option key={v.id} value={v.id}>{v.label} — {v.maxPax} pers.</option>)}
+                    </select></div>
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Passagers</span></label>
+                    <select name="passengers" value={f.passengers} onChange={h} className="select select-bordered bg-gray-50 border-gray-200 rounded-lg text-sm">
+                      {Array.from({ length: 15 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                    </select></div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Nom complet <span className="text-red-500">*</span></span></label>
+                    <input type="text" name="name" value={f.name} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" required /></div>
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Téléphone <span className="text-red-500">*</span></span></label>
+                    <input type="tel" name="phone" value={f.phone} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" placeholder="+212 6XX XXX XXX" required /></div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Email</span></label>
+                    <input type="email" name="email" value={f.email} onChange={h} className="input input-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" /></div>
+                  <div className="form-control"><label className="label"><span className="label-text font-medium text-gray-700">Langue</span></label>
+                    <select name="language" value={f.language} onChange={h} className="select select-bordered bg-gray-50 border-gray-200 rounded-lg text-sm">
+                      {LANGUAGES.map(l => <option key={l}>{l}</option>)}
+                    </select></div>
+                </div>
+
+                <div className="form-control mb-5">
+                  <label className="label"><span className="label-text font-medium text-gray-700">Notes</span></label>
+                  <textarea name="notes" value={f.notes} onChange={h} className="textarea textarea-bordered bg-gray-50 border-gray-200 rounded-lg text-sm" rows="2" placeholder="Sièges enfant, bagages, demande spéciale..." />
+                </div>
+
+                <button type="submit" className="btn btn-primary btn-block rounded-lg">Confirmer la réservation</button>
+              </form>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ══ REVIEWS ══ */}
+      <section id="avis" className="py-16 lg:py-20 px-4 lg:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-xl mx-auto mb-12">
+            <span className="text-secondary font-semibold text-sm tracking-widest uppercase">Avis clients</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 text-gray-900">Ils nous ont fait confiance</h2>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-5">
+            {REVIEWS.map((r, i) => (
+              <div key={i} className="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                <div className="flex gap-1 mb-3">{Array(5).fill(0).map((_, j) => (
+                  <span key={j} className="text-secondary text-base">★</span>
+                ))}</div>
+                <p className="text-gray-600 text-sm leading-relaxed italic mb-4">« {r.text} »</p>
+                <div><div className="font-semibold text-sm text-gray-900">{r.name}</div><div className="text-xs text-gray-400">{r.city}</div></div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer id="contact" className="footer footer-center p-10 bg-neutral text-neutral-content">
-        <div className="grid md:grid-cols-4 gap-8 max-w-6xl w-full text-left">
-          <div>
-            <h3 className="text-lg font-bold flex items-center gap-2"><span className="text-secondary">✦</span> Golden Trans</h3>
-            <p className="text-sm opacity-70">Location et transfert de véhicules dans tout le Maroc.</p>
+      {/* ══ FOOTER ══ */}
+      <footer id="contact" className="bg-gray-900 text-gray-300 py-12 px-4 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div>
+              <h3 className="flex items-center gap-2 text-white font-bold mb-3"><span className="text-secondary">✦</span> Golden Trans</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">Location et transfert de véhicules dans tout le Maroc. Service professionnel et fiable.</p>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4">Contact</h4>
+              <div className="space-y-1.5 text-sm text-gray-400">
+                <p>📞 +212 600 000 000</p>
+                <p>✉️ contact@goldentrans.ma</p>
+                <p>💬 WhatsApp</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4">Destinations</h4>
+              <p className="text-sm text-gray-400">Casablanca, Marrakech, Rabat, Fès, Tanger...</p>
+              <p className="text-sm text-secondary font-semibold mt-2">+{CITIES.length} villes desservies</p>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4">Horaires</h4>
+              <p className="text-sm text-gray-400">24h/24 — 7j/7</p>
+              <p className="text-sm text-gray-400">Service aéroport inclus</p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-bold mb-2">Contact</h4>
-            <p className="text-sm opacity-70">📞 +212 600 000 000</p>
-            <p className="text-sm opacity-70">✉️ contact@goldentrans.ma</p>
-            <p className="text-sm opacity-70">💬 WhatsApp</p>
+          <div className="border-t border-gray-800 mt-10 pt-8 text-center text-sm text-gray-500">
+            © {new Date().getFullYear()} Golden Trans
           </div>
-          <div>
-            <h4 className="font-bold mb-2">Destinations</h4>
-            <p className="text-sm opacity-70">Casablanca, Marrakech, Rabat, Fès, Tanger...</p>
-            <p className="text-sm opacity-70">+{CITIES.length} villes desservies</p>
-          </div>
-          <div>
-            <h4 className="font-bold mb-2">Horaires</h4>
-            <p className="text-sm opacity-70">24h/24 — 7j/7</p>
-            <p className="text-sm opacity-70">Service aéroport inclus</p>
-          </div>
-        </div>
-        <div className="border-t border-white/10 pt-6 mt-6 text-center text-sm opacity-50 max-w-6xl w-full">
-          © {new Date().getFullYear()} Golden Trans. Tous droits réservés.
         </div>
       </footer>
 

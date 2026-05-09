@@ -1,20 +1,11 @@
 html { scroll-behavior: smooth; }
 
-.rating input:checked + label,
-.rating input:checked ~ label { color: #faa916; }
+::selection { background: #d4a843; color: #1a3a5c; }
 
-.rating-star { cursor: default; }
+.btn { transition: all 0.2s ease; }
+.input, .select, .textarea { transition: border-color 0.2s, box-shadow 0.2s; }
+.input:focus, .select:focus, .textarea:focus { border-color: #1a3a5c; box-shadow: 0 0 0 3px rgba(26,58,92,0.08); }
 
-.card figure img {
-  transition: transform 0.4s;
-}
-
-.card:hover figure img {
-  transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-  .hero {
-    min-height: 60vh;
-  }
+@media (max-width: 640px) {
+  .label-text { font-size: 0.8rem; }
 }
