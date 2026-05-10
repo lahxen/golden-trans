@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "postinstall": "npm install --prefix server"
   },
   "dependencies": {
     "autoprefixer": "^10.5.0",
