@@ -13,15 +13,6 @@ export const BOOKING_MODES = [
   },
 ]
 
-export const VEHICLES = [
-  { id: 'sedan',   label: 'SEDAN',      capacity: '1-3 pers.' },
-  { id: 'suv',     label: 'SUV',        capacity: '1-5 pers.' },
-  { id: '4x4',     label: '4x4',        capacity: '1-5 pers.' },
-  { id: 'van',     label: 'VAN',        capacity: '1-7 pers.' },
-  { id: 'minibus', label: 'MINIBUS',    capacity: '8-15 pers.' },
-  { id: 'luxury',  label: 'LUXE',       capacity: '1-5 pers.' },
-]
-
 export const CITIES = [
   'Agadir', 'Al Hoceima', 'Asilah', 'Azilal', 'Azrou',
   'Beni Mellal', 'Berkane', 'Berrechid',

@@ -5,6 +5,7 @@ import App from './App.jsx'
 import Fleet from './pages/Fleet.jsx'
 import Booking from './pages/Booking.jsx'
 import Admin from './pages/Admin.jsx'
+import WhatsAppButton from './components/WhatsAppButton.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/booking" element={<Booking />} />
         <Route path="/admin"   element={<Admin />} />
       </Routes>
+      <WhatsAppButton />
     </BrowserRouter>
   </React.StrictMode>,
 )
