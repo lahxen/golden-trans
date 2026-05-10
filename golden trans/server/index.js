@@ -25,11 +25,11 @@ mongoose
   .connect(MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB connected')
-    app.listen(PORT, () => console.log(`🚀 Golden Trans API running on port ${PORT}`))
+    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Golden Trans API running on port ${PORT}`))
   })
   .catch(err => {
     console.error('❌ MongoDB connection error:', err.message)
     console.log('ℹ  Frontend will use localStorage fallback.')
     // Start server anyway so health check works
-    app.listen(PORT, () => console.log(`⚠  Server running on port ${PORT} (no DB)`))
+    app.listen(PORT, '0.0.0.0', () => console.log(`⚠  Server running on port ${PORT} (no DB)`))
   })
