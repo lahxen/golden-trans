@@ -20,16 +20,14 @@ app.use('/api/bookings', bookingRoutes)
 // Health check
 app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date() }))
 
-// Connect to MongoDB then start server
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected')
-    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Golden Trans API running on port ${PORT}`))
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err.message)
-    console.log('ℹ  Frontend will use localStorage fallback.')
-    // Start server anyway so health check works
-    app.listen(PORT, '0.0.0.0', () => console.log(`⚠  Server running on port ${PORT} (no DB)`))
-  })
+// Start server first, then connect to MongoDB
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Golden Trans API starting on port ${PORT}`)
+
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log('✅ MongoDB connected'))
+    .catch(err => {
+      console.error('❌ MongoDB connection error:', err.message)
+      console.log('ℹ  Frontend will use localStorage fallback.')
+    })
+})
