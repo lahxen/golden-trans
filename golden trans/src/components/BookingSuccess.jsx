@@ -1,11 +1,7 @@
 import { Link } from 'react-router-dom'
 import { calculatePrice } from '../services/bookingService'
-
-const STATUS_CONFIG = {
-  confirmed:     { label: 'Confirmed',        color: 'text-green-400',  bg: 'bg-green-500/10 border-green-500/20' },
-  pay_on_arrival:{ label: 'Pay on Arrival',   color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
-  pending:       { label: 'Pending',          color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/20' },
-}
+import { useTranslation } from '../i18n/context.jsx'
+import { CheckCircle, Clock } from 'lucide-react'
 
 function Row({ label, value }) {
   return (
@@ -17,13 +13,21 @@ function Row({ label, value }) {
 }
 
 function BookingSuccess({ booking }) {
+  const { t } = useTranslation()
+
+  const STATUS_CONFIG = {
+    confirmed:     { label: t.success.confirmed,        color: 'text-green-400',  bg: 'bg-green-500/10 border-green-500/20' },
+    pay_on_arrival:{ label: t.success.payOnArrivalLabel,   color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
+    pending:       { label: t.success.pending,          color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/20' },
+  }
+
   const status = STATUS_CONFIG[booking.status] || STATUS_CONFIG.pending
   const totalPrice = calculatePrice(booking.deal, booking.tripType)
   const isRound = booking.tripType === 'round_trip'
 
   function handleWhatsApp() {
     const msg = [
-      `✅ *GOLDEN TRANS — Booking Confirmed*`,
+      `${t.success.whatsappMsg}`,
       `Reference: *${booking.ref}*`,
       ``,
       `👤 ${booking.name}`,
@@ -31,7 +35,7 @@ function BookingSuccess({ booking }) {
       `📅 ${booking.date} at ${booking.time}`,
       `🚐 ${booking.deal.type} (${booking.deal.category})`,
       `💰 ${totalPrice.toLocaleString()} MAD`,
-      `💳 ${booking.paymentMethod === 'online' ? 'Paid Online' : 'Pay on Arrival'}`,
+      `${booking.paymentMethod === 'online' ? t.success.paidOnline : t.success.payOnArrival}`,
     ].join('\n')
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
@@ -46,41 +50,41 @@ function BookingSuccess({ booking }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-white text-3xl font-black mb-2">Booking Received!</h2>
+        <h2 className="text-white text-3xl font-black mb-2">{t.success.title}</h2>
         <p className="text-gray-400">
           {booking.paymentMethod === 'online'
-            ? 'Your payment was processed and your transfer is confirmed.'
-            : 'Your reservation is confirmed. Our team will contact you within 30 minutes.'}
+            ? t.success.onlineMsg
+            : t.success.arrivalMsg}
         </p>
       </div>
 
       {/* Reference number */}
       <div className="bg-gray-900 border border-gold-500/40 rounded-2xl p-6 mb-6">
-        <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">Reservation Reference</p>
+        <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">{t.success.ref}</p>
         <p className="text-gold-400 text-4xl font-black tracking-wider mb-3">{booking.ref}</p>
         <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${status.bg} ${status.color}`}>
-          {booking.paymentMethod === 'online' ? '✅' : '⏳'} {status.label}
+          {booking.paymentMethod === 'online' ? <CheckCircle size={16} /> : <Clock size={16} />} {status.label}
         </div>
       </div>
 
       {/* Trip summary */}
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6 text-left">
-        <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-4">Trip Summary</p>
+        <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-4">{t.success.tripSummary}</p>
         <table className="w-full">
           <tbody>
-            <Row label="Name"       value={booking.name} />
-            <Row label="Phone"      value={booking.phone} />
-            <Row label="Pickup"     value={booking.pickup} />
-            <Row label="Drop-off"   value={booking.dropoff} />
-            <Row label="Date & Time" value={`${booking.date} at ${booking.time}`} />
-            <Row label="Trip Type"  value={isRound ? 'Round Trip' : 'One Way'} />
-            <Row label="Passengers" value={`${booking.passengers} passenger${booking.passengers > 1 ? 's' : ''}`} />
-            <Row label="Vehicle"    value={`${booking.deal.type} (${booking.deal.category})`} />
-            <Row label="Payment"    value={booking.paymentMethod === 'online' ? '💳 Paid online' : '🚗 Pay on arrival'} />
+            <Row label={t.success.name}       value={booking.name} />
+            <Row label={t.success.phone}      value={booking.phone} />
+            <Row label={t.success.pickup}     value={booking.pickup} />
+            <Row label={t.success.dropoff}   value={booking.dropoff} />
+            <Row label={t.success.dateTime} value={`${booking.date} at ${booking.time}`} />
+            <Row label={t.success.tripType}  value={isRound ? t.success.roundTrip : t.success.oneWay} />
+            <Row label={t.success.passengers} value={`${booking.passengers} ${parseInt(booking.passengers) > 1 ? t.success.passengers_plural : t.success.passenger}`} />
+            <Row label={t.success.vehicle}    value={`${booking.deal.type} (${booking.deal.category})`} />
+            <Row label={t.success.payment}    value={booking.paymentMethod === 'online' ? t.success.paidOnline : t.success.payOnArrival} />
             <tr>
-              <td className="py-3 pr-4 text-gray-500 text-sm">Total</td>
+              <td className="py-3 pr-4 text-gray-500 text-sm">{t.success.total}</td>
               <td className="py-3 text-gold-400 text-xl font-black">
-                {totalPrice.toLocaleString()} MAD
+                {totalPrice.toLocaleString()} {t.admin.mad}
               </td>
             </tr>
           </tbody>
@@ -89,24 +93,24 @@ function BookingSuccess({ booking }) {
 
       {/* What's next */}
       <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5 mb-8 text-left">
-        <p className="text-white font-bold text-sm mb-3">📋 What happens next?</p>
+        <p className="text-white font-bold text-sm mb-3">{t.success.whatNext}</p>
         <ul className="space-y-2 text-gray-400 text-sm">
           <li className="flex items-start gap-2">
             <span className="text-gold-500 font-bold flex-shrink-0">1.</span>
-            Our team reviews your booking and confirms within 30 minutes.
+            {t.success.step1}
           </li>
           <li className="flex items-start gap-2">
             <span className="text-gold-500 font-bold flex-shrink-0">2.</span>
-            You receive your driver's name, vehicle plate, and WhatsApp contact.
+            {t.success.step2}
           </li>
           <li className="flex items-start gap-2">
             <span className="text-gold-500 font-bold flex-shrink-0">3.</span>
-            Your driver will be at the pickup location on time with a name sign.
+            {t.success.step3}
           </li>
           {booking.paymentMethod === 'on_arrival' && (
             <li className="flex items-start gap-2">
               <span className="text-gold-500 font-bold flex-shrink-0">4.</span>
-              Payment accepted on arrival — cash or card.
+              {t.success.step4}
             </li>
           )}
         </ul>
@@ -119,20 +123,20 @@ function BookingSuccess({ booking }) {
           onClick={handleWhatsApp}
           className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-xl transition-colors"
         >
-          <span>💬</span> Share via WhatsApp
+          {t.success.shareWhatsApp}
         </button>
         <button
           type="button"
           onClick={() => window.print()}
           className="flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-xl transition-colors border border-gray-700"
         >
-          <span>🖨️</span> Print
+          {t.success.print}
         </button>
         <Link
           to="/"
           className="flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-xl transition-colors border border-gray-700 no-underline"
         >
-          ← Back to Home
+          {t.success.backHome}
         </Link>
       </div>
     </div>

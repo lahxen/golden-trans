@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from '../i18n/context.jsx'
+import { MapPin } from 'lucide-react'
 
 export default function AutocompleteInput({ items, placeholder, icon, value, onChange, onSelect }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState(value || '')
   const [highlightIdx, setHighlightIdx] = useState(-1)
@@ -80,7 +83,7 @@ export default function AutocompleteInput({ items, placeholder, icon, value, onC
                 i === highlightIdx ? 'bg-primary/5 text-primary font-medium' : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <span className="text-gray-400 text-base">📍</span>
+              <MapPin size={16} className="text-gray-400 flex-shrink-0" />
               <span>{highlightMatch(item, query)}</span>
             </button>
           ))}
@@ -89,7 +92,7 @@ export default function AutocompleteInput({ items, placeholder, icon, value, onC
 
       {open && query && filtered.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl shadow-lg border border-gray-100 py-4 px-4 z-50 animate-fadeIn">
-          <p className="text-gray-400 text-sm text-center">Aucun résultat pour "{query}"</p>
+          <p className="text-gray-400 text-sm text-center">{t.booking.noResults.replace('{query}', query)}</p>
         </div>
       )}
     </div>

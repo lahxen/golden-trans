@@ -4,13 +4,14 @@ import BookingStepOne from '../components/BookingStepOne'
 import BookingStepTwo from '../components/BookingStepTwo'
 import BookingSuccess from '../components/BookingSuccess'
 import { saveBooking } from '../services/bookingService'
+import { useTranslation } from '../i18n/context.jsx'
+import { Check } from 'lucide-react'
 
-const STEPS = [
-  { n: 1, label: 'Trip Info' },
-  { n: 2, label: 'Payment' },
-]
-
-function StepIndicator({ current }) {
+function StepIndicator({ current, t }) {
+  const STEPS = [
+    { n: 1, label: t.booking.tripInfo },
+    { n: 2, label: t.booking.payment },
+  ]
   return (
     <div className="flex items-center justify-center gap-0 mb-10">
       {STEPS.map((s, i) => (
@@ -22,10 +23,10 @@ function StepIndicator({ current }) {
                 ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
                 : 'bg-gray-800 text-gray-500 border border-gray-700'
           }`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-black ${
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center ${
               current > s.n ? 'bg-gold-500 text-black' : ''
             }`}>
-              {current > s.n ? '✓' : s.n}
+              {current > s.n ? <Check size={14} className="text-black" /> : <span className="text-xs font-black">{s.n}</span>}
             </span>
             {s.label}
           </div>
@@ -39,6 +40,7 @@ function StepIndicator({ current }) {
 }
 
 function Booking() {
+  const { t } = useTranslation()
   const [step, setStep] = useState(1)             // 1 | 2 | 'success'
   const [tripData, setTripData] = useState(null)
   const [selectedDeal, setSelectedDeal] = useState(null)
@@ -62,7 +64,7 @@ function Booking() {
       setStep('success')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch {
-      alert('Something went wrong. Please try again.')
+      alert(t.booking.error)
     } finally {
       setSaving(false)
     }
@@ -85,9 +87,9 @@ function Booking() {
             <span className="text-gold-500">Golden</span> Trans
           </Link>
           <div className="flex items-center gap-5">
-            <Link to="/"      className="text-gray-400 hover:text-white text-sm font-medium transition-colors no-underline">Home</Link>
-            <Link to="/fleet" className="text-gray-400 hover:text-white text-sm font-medium transition-colors no-underline">Fleet</Link>
-            <Link to="/booking" className="text-gold-500 text-sm font-bold no-underline">Book Now</Link>
+            <Link to="/"      className="text-gray-400 hover:text-white text-sm font-medium transition-colors no-underline">{t.nav.home}</Link>
+            <Link to="/fleet" className="text-gray-400 hover:text-white text-sm font-medium transition-colors no-underline">{t.nav.fleet}</Link>
+            <Link to="/booking" className="text-gold-500 text-sm font-bold no-underline">{t.nav.bookNow}</Link>
           </div>
         </div>
       </nav>
@@ -99,10 +101,10 @@ function Booking() {
             Golden Trans · Morocco
           </p>
           <h1 className="text-white font-black mb-2" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
-            Reserve Your Transfer
+            {t.booking.reserveTitle}
           </h1>
           <p className="text-gray-500 text-sm max-w-md mx-auto">
-            2 simple steps — trip details, then choose your vehicle and pay
+            {t.booking.reserveDesc}
           </p>
         </div>
       )}
@@ -114,7 +116,7 @@ function Booking() {
           <BookingSuccess booking={booking} />
         ) : (
           <>
-            <StepIndicator current={step} />
+            <StepIndicator current={step} t={t} />
 
             {step === 1 && (
               <BookingStepOne onSelectDeal={handleSelectDeal} />
@@ -126,7 +128,7 @@ function Booking() {
                   <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-gray-900 border border-gold-500/30 rounded-2xl p-8 text-center">
                       <div className="w-12 h-12 border-4 border-gray-700 border-t-gold-500 rounded-full animate-spin mx-auto mb-4" />
-                      <p className="text-white font-bold">Confirming your booking...</p>
+                      <p className="text-white font-bold">{t.booking.confirming}</p>
                     </div>
                   </div>
                 )}
@@ -145,8 +147,8 @@ function Booking() {
       {/* ── FOOTER ── */}
       <footer className="border-t border-gray-800 py-8 px-6 mt-10" style={{ backgroundColor: '#0a0a0a' }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 text-gray-600 text-sm">
-          <span>© 2025 <span className="text-gold-500 font-bold">Golden Trans</span> · Morocco</span>
-          <span>📞 +212 726 760 517 · ✉️ goldentrans68@gmail.com</span>
+          <span>© {new Date().getFullYear()} <span className="text-gold-500 font-bold">Golden Trans</span> · Morocco</span>
+          <span>{t.footer.phoneLabel} · {t.footer.emailLabel}</span>
         </div>
       </footer>
 

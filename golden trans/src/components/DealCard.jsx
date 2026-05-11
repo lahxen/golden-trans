@@ -1,12 +1,15 @@
 import { calculatePrice } from '../services/bookingService'
+import { useTranslation } from '../i18n/context.jsx'
+import { Star, AlertTriangle } from 'lucide-react'
 
 const TAG_CONFIG = {
-  most_popular: { label: '🔥 Most Popular', color: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
-  popular:      { label: '⭐ Popular Choice', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-  vip:          { label: '✦ VIP Premium', color: 'bg-gold-500/20 text-gold-400 border-gold-500/30' },
+  most_popular: { labelKey: 'popular', color: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
+  popular:      { labelKey: 'popularChoice', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+  vip:          { labelKey: 'vipPremium', color: 'bg-gold-500/20 text-gold-400 border-gold-500/30' },
 }
 
 function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, onSelect }) {
+  const { t } = useTranslation()
   const price = calculatePrice(vehicle, tripType)
   const isRound = tripType === 'round_trip'
   const tagCfg = TAG_CONFIG[vehicle.tag] || null
@@ -24,12 +27,12 @@ function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, o
       {/* Best Match banner */}
       {isRecommended && (
         <div className="bg-gold-500 text-black text-[0.7rem] font-black text-center py-1.5 uppercase tracking-[0.15em]">
-          ⭐ Best Match for Your Group
+          <Star size={12} className="mr-1 inline-block fill-current" /> {t.bestMatch}
         </div>
       )}
       {isVipChoice && !isRecommended && (
         <div className="bg-gray-800 border-b border-gold-500/30 text-gold-400 text-[0.7rem] font-black text-center py-1.5 uppercase tracking-[0.15em]">
-          ✦ VIP Premium Upgrade
+          <Star size={12} className="mr-1 inline-block fill-current" /> {t.vipUpgrade}
         </div>
       )}
 
@@ -58,7 +61,7 @@ function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, o
         {/* Tag badge */}
         {tagCfg && (
           <span className={`absolute top-3 right-3 border text-[0.65rem] font-bold px-2.5 py-0.5 rounded-full ${tagCfg.color}`}>
-            {tagCfg.label}
+            {t[tagCfg.labelKey]}
           </span>
         )}
       </div>
@@ -74,13 +77,13 @@ function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, o
             <svg className="w-4 h-4 text-gold-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
             </svg>
-            {vehicle.passengers} pax
+            {vehicle.passengers} {t.vehicle.pax}
           </span>
           <span className="flex items-center gap-1.5 text-gray-300 text-sm font-semibold">
             <svg className="w-4 h-4 text-gold-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5z" />
             </svg>
-            {vehicle.luggage} bags
+            {vehicle.luggage} {t.vehicle.bags}
           </span>
         </div>
 
@@ -90,7 +93,7 @@ function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, o
         {/* Not suitable warning */}
         {!isSuitable && (
           <p className="text-red-400 text-xs mb-3 font-semibold">
-            ⚠ Capacity may be insufficient for your group
+            <AlertTriangle size={14} className="inline-block mr-1" /> {t.vehicle.capacityWarning}
           </p>
         )}
 
@@ -99,7 +102,7 @@ function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, o
           <div className="flex items-end justify-between">
             <div>
               <p className="text-gray-500 text-[0.68rem] uppercase tracking-wider mb-0.5">
-                {isRound ? 'Round trip from' : 'One way from'}
+                {isRound ? t.vehicle.roundFrom : t.vehicle.oneFrom}
               </p>
               <p className="text-white text-2xl font-black">
                 {price.toLocaleString()} <span className="text-gold-500 text-sm font-bold">MAD</span>
@@ -107,11 +110,11 @@ function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, o
             </div>
             {isRound && (
               <span className="text-gold-500/70 text-xs bg-gold-500/10 border border-gold-500/20 px-2 py-1 rounded-lg">
-                Round trip
+                {t.vehicle.roundTrip}
               </span>
             )}
           </div>
-          <p className="text-gray-600 text-[0.65rem] mt-1">Exact price confirmed before departure</p>
+          <p className="text-gray-600 text-[0.65rem] mt-1">{t.vehicle.priceConfirmed}</p>
         </div>
 
         {/* CTA */}
@@ -124,7 +127,7 @@ function DealCard({ vehicle, isRecommended, isVipChoice, isSuitable, tripType, o
               : 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 hover:border-gray-500'
           }`}
         >
-          Choose This Deal →
+          {t.vehicle.chooseDeal}
         </button>
       </div>
     </div>

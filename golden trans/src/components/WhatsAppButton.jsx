@@ -1,9 +1,10 @@
+import { useTranslation } from '../i18n/context.jsx'
+
 const WHATSAPP_NUMBER = '212726760517'
 
 function WhatsAppButton() {
-  const message = encodeURIComponent(
-    'Bonjour ! Je souhaite des informations sur une réservation chez Golden Trans 🚗'
-  )
+  const { t } = useTranslation()
+  const message = encodeURIComponent(t.whatsapp.message)
 
   return (
     <a

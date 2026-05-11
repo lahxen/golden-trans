@@ -1,17 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from '../i18n/context.jsx'
 
 const LANGUAGES = [
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'en', label: 'English',  flag: '🇬🇧' },
   { code: 'ar', label: 'العربية',  flag: '🇸🇦' },
-  { code: 'es', label: 'Español',  flag: '🇪🇸' },
-  { code: 'de', label: 'Deutsch',  flag: '🇩🇪' },
 ]
 
 export default function LanguageSelector() {
   const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState(LANGUAGES[0])
+  const { lang, setLang } = useTranslation()
   const ref = useRef(null)
+
+  const selected = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0]
 
   useEffect(() => {
     const handleClick = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -34,19 +35,19 @@ export default function LanguageSelector() {
 
       {open && (
         <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fadeIn">
-          {LANGUAGES.map(lang => (
+          {LANGUAGES.map(langItem => (
             <button
-              key={lang.code}
-              onClick={() => { setSelected(lang); setOpen(false) }}
+              key={langItem.code}
+              onClick={() => { setLang(langItem.code); setOpen(false) }}
               className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                selected.code === lang.code
+                selected.code === langItem.code
                   ? 'text-primary font-bold bg-primary/5'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <span className="text-lg leading-none">{lang.flag}</span>
-              <span>{lang.label}</span>
-              {selected.code === lang.code && (
+              <span className="text-lg leading-none">{langItem.flag}</span>
+              <span>{langItem.label}</span>
+              {selected.code === langItem.code && (
                 <svg className="w-4 h-4 ml-auto text-secondary" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>

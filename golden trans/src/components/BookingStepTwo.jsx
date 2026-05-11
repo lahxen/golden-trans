@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { calculatePrice } from '../services/bookingService'
+import { useTranslation } from '../i18n/context.jsx'
+import { CreditCard, Car, Lock, Lightbulb } from 'lucide-react'
 
 const INPUT = 'w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors text-sm font-mono'
 const LABEL = 'block text-gray-300 text-xs font-bold mb-2 uppercase tracking-wider'
@@ -24,6 +26,7 @@ function SummaryRow({ label, value, highlight }) {
 }
 
 function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
+  const { t } = useTranslation()
   const [paymentMethod, setPaymentMethod] = useState(null)
   const [card, setCard] = useState({ name: '', number: '', expiry: '', cvv: '' })
   const [cardErrors, setCardErrors] = useState({})
@@ -34,10 +37,10 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
 
   function validateCard() {
     const e = {}
-    if (!card.name.trim()) e.name = 'Cardholder name required'
-    if (card.number.replace(/\s/g, '').length < 16) e.number = 'Enter a valid 16-digit card number'
-    if (card.expiry.length < 5) e.expiry = 'Enter expiry as MM/YY'
-    if (card.cvv.length < 3) e.cvv = 'Enter 3 or 4 digit CVV'
+    if (!card.name.trim()) e.name = t.errors.cardNameRequired
+    if (card.number.replace(/\s/g, '').length < 16) e.number = t.errors.cardNumberInvalid
+    if (card.expiry.length < 5) e.expiry = t.errors.expiryInvalid
+    if (card.cvv.length < 3) e.cvv = t.errors.cvvInvalid
     return e
   }
 
@@ -51,7 +54,6 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
     }
 
     setIsProcessing(true)
-    // Simulate payment processing delay
     await new Promise(r => setTimeout(r, 1500))
     setIsProcessing(false)
     onConfirm(paymentMethod)
@@ -64,24 +66,24 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
       <div>
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 mb-5">
           <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-4">
-            Reservation Summary
+            {t.booking.summary}
           </p>
-          <SummaryRow label="Customer"   value={tripData.name} />
-          <SummaryRow label="Phone"      value={tripData.phone} />
-          <SummaryRow label="Pickup"     value={tripData.pickup} />
-          <SummaryRow label="Drop-off"   value={tripData.dropoff} />
-          <SummaryRow label="Date"       value={`${tripData.date} at ${tripData.time}`} />
-          <SummaryRow label="Trip type"  value={isRound ? 'Round Trip' : 'One Way'} />
-          <SummaryRow label="Passengers" value={`${tripData.passengers} passenger${tripData.passengers > 1 ? 's' : ''}`} />
-          <SummaryRow label="Luggage"    value={`${tripData.luggage} bag${tripData.luggage > 1 ? 's' : ''}`} />
+          <SummaryRow label={t.booking.customer}   value={tripData.name} />
+          <SummaryRow label={t.booking.phone}      value={tripData.phone} />
+          <SummaryRow label={t.booking.pickup}     value={tripData.pickup} />
+          <SummaryRow label={t.booking.dropoff}   value={tripData.dropoff} />
+          <SummaryRow label={t.booking.date}       value={`${tripData.date} at ${tripData.time}`} />
+          <SummaryRow label={t.booking.tripType}  value={isRound ? t.vehicle.roundTrip : t.vehicle.oneWay} />
+          <SummaryRow label={t.booking.passengers} value={`${tripData.passengers} ${parseInt(tripData.passengers) > 1 ? t.vehicle.passengers_plural : t.vehicle.passengers}`} />
+          <SummaryRow label={t.booking.luggage}    value={`${tripData.luggage} ${parseInt(tripData.luggage) > 1 ? t.vehicle.luggage_plural : t.vehicle.luggage}`} />
           {tripData.specialRequest && (
-            <SummaryRow label="Request" value={tripData.specialRequest} />
+            <SummaryRow label={t.booking.specialRequest} value={tripData.specialRequest} />
           )}
         </div>
 
         {/* Selected vehicle */}
         <div className="bg-gray-900 rounded-2xl border border-gold-500/30 p-5">
-          <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-3">Selected Vehicle</p>
+          <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-3">{t.booking.selectedVehicle}</p>
           <div className="flex items-center gap-4">
             <div className="w-16 h-12 rounded-lg bg-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
               <img
@@ -97,12 +99,12 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-gray-800 flex justify-between items-center">
-            <span className="text-gray-400 text-sm">Total Price</span>
+            <span className="text-gray-400 text-sm">{t.booking.totalPrice}</span>
             <span className="text-white text-2xl font-black">
-              {totalPrice.toLocaleString()} <span className="text-gold-500 text-sm">MAD</span>
+              {totalPrice.toLocaleString()} <span className="text-gold-500 text-sm">{t.admin.mad}</span>
             </span>
           </div>
-          <p className="text-gray-600 text-xs mt-1 text-right">Final price confirmed before departure</p>
+          <p className="text-gray-600 text-xs mt-1 text-right">{t.booking.priceConfirmed}</p>
         </div>
 
         <button
@@ -110,7 +112,7 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
           onClick={onBack}
           className="mt-4 text-gray-500 hover:text-gray-300 text-sm font-semibold transition-colors flex items-center gap-1"
         >
-          ← Change vehicle
+          {t.booking.changeVehicle}
         </button>
       </div>
 
@@ -118,7 +120,7 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
       <div>
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
           <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-5">
-            Payment Method
+            {t.booking.paymentMethod}
           </p>
 
           {/* Payment options */}
@@ -126,15 +128,15 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
             {[
               {
                 id: 'online',
-                icon: '💳',
-                title: 'Pay Online Now',
-                sub: 'Secure card payment — booking confirmed immediately',
+                icon: <CreditCard size={24} />,
+                title: t.booking.payOnline,
+                sub: t.booking.payOnlineDesc,
               },
               {
                 id: 'on_arrival',
-                icon: '🚗',
-                title: 'Pay When Car Arrives',
-                sub: 'Cash or card on arrival — no charge today',
+                icon: <Car size={24} />,
+                title: t.booking.payOnArrival,
+                sub: t.booking.payOnArrivalDesc,
               },
             ].map(opt => (
               <label
@@ -151,7 +153,7 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
                   checked={paymentMethod === opt.id}
                   onChange={() => setPaymentMethod(opt.id)}
                 />
-                <span className="text-2xl flex-shrink-0 mt-0.5">{opt.icon}</span>
+                <span className="flex-shrink-0 mt-0.5">{opt.icon}</span>
                 <div>
                   <p className={`font-bold text-sm ${paymentMethod === opt.id ? 'text-gold-400' : 'text-white'}`}>
                     {opt.title}
@@ -169,16 +171,16 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
           {paymentMethod === 'online' && (
             <div className="border-t border-gray-800 pt-5 space-y-4">
               <p className="text-gray-400 text-xs flex items-center gap-1.5">
-                <span>🔒</span>
-                Payments are secured and tokenized. Card data is never stored on our servers.
+                <Lock size={14} />
+                {t.booking.securePayment}
               </p>
 
               {/* Card number */}
               <div>
-                <label className={LABEL}>Card Number</label>
+                <label className={LABEL}>{t.booking.cardNumber}</label>
                 <input
                   type="text" inputMode="numeric" className={INPUT}
-                  placeholder="1234 5678 9012 3456"
+                  placeholder={t.booking.cardPlaceholder}
                   value={card.number}
                   onChange={e => setCard(p => ({ ...p, number: formatCardNumber(e.target.value) }))}
                 />
@@ -188,20 +190,20 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
               {/* Expiry + CVV */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LABEL}>Expiry</label>
+                  <label className={LABEL}>{t.booking.expiry}</label>
                   <input
                     type="text" inputMode="numeric" className={INPUT}
-                    placeholder="MM/YY" maxLength={5}
+                    placeholder={t.booking.expiryPlaceholder} maxLength={5}
                     value={card.expiry}
                     onChange={e => setCard(p => ({ ...p, expiry: formatExpiry(e.target.value) }))}
                   />
                   {cardErrors.expiry && <p className="text-red-400 text-xs mt-1">{cardErrors.expiry}</p>}
                 </div>
                 <div>
-                  <label className={LABEL}>CVV</label>
+                  <label className={LABEL}>{t.booking.cvv}</label>
                   <input
                     type="password" inputMode="numeric" className={INPUT}
-                    placeholder="•••" maxLength={4}
+                    placeholder={t.booking.cvvPlaceholder} maxLength={4}
                     value={card.cvv}
                     onChange={e => setCard(p => ({ ...p, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
                   />
@@ -211,10 +213,10 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
 
               {/* Name on card */}
               <div>
-                <label className={LABEL}>Name on Card</label>
+                <label className={LABEL}>{t.booking.cardName}</label>
                 <input
                   type="text" className={`${INPUT} font-sans`}
-                  placeholder="As printed on your card"
+                  placeholder={t.booking.cardNamePlaceholder}
                   value={card.name}
                   onChange={e => setCard(p => ({ ...p, name: e.target.value }))}
                 />
@@ -224,7 +226,7 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
               {/* Stripe note */}
               <div className="bg-gray-800/50 rounded-xl p-3 border border-gray-700">
                 <p className="text-gray-500 text-[0.68rem] leading-relaxed">
-                  💡 <strong className="text-gray-400">Developer note:</strong> This is a demo payment form.
+                  <Lightbulb size={14} className="inline-block mr-1" /> <strong className="text-gray-400">Developer note:</strong> This is a demo payment form.
                   To enable real payments, add your Stripe publishable key and integrate{' '}
                   <code className="text-gold-500">@stripe/react-stripe-js</code>.
                 </p>
@@ -235,10 +237,9 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
           {paymentMethod === 'on_arrival' && (
             <div className="border-t border-gray-800 pt-5">
               <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4">
-                <p className="text-orange-300 text-sm font-semibold mb-1">✓ No payment required today</p>
+                <p className="text-orange-300 text-sm font-semibold mb-1">{t.booking.noPaymentRequired}</p>
                 <p className="text-orange-300/70 text-xs">
-                  Your booking will be marked as <strong>Pay on Arrival</strong>.
-                  Our team will contact you within 30 minutes to confirm.
+                  {t.booking.noPaymentDesc}
                 </p>
               </div>
             </div>
@@ -258,12 +259,12 @@ function BookingStepTwo({ tripData, selectedDeal, onConfirm, onBack }) {
             }`}
           >
             {isProcessing
-              ? '⏳ Processing...'
+              ? t.booking.processing
               : paymentMethod === 'online'
-                ? `🔒 Pay ${totalPrice.toLocaleString()} MAD`
+                ? t.booking.payNow.replace('{total}', totalPrice.toLocaleString())
                 : paymentMethod === 'on_arrival'
-                  ? '✓ Confirm Booking (Pay on Arrival)'
-                  : 'Select Payment Method'}
+                  ? t.booking.confirmOnArrival
+                  : t.booking.selectPayment}
           </button>
         </div>
       </div>
