@@ -1,10 +1,23 @@
 import Booking from '../models/Booking.js'
+import { sendEmailNotification, sendWANotification, sendCustomerReply } from '../services/notificationService.js'
 
 // POST /api/bookings
 export async function createBooking(req, res) {
   try {
     const booking = new Booking(req.body)
     await booking.save()
+
+    // Fire notifications asynchronously (don't block response)
+    Promise.allSettled([
+      sendEmailNotification(booking),
+      sendWANotification(booking),
+      sendCustomerReply(booking),
+    ]).then(results => {
+      results.forEach((r, i) => {
+        if (r.status === 'rejected') console.error(`[NOTIF ${i}]`, r.reason)
+      })
+    })
+
     res.status(201).json(booking)
   } catch (err) {
     if (err.code === 11000) {
