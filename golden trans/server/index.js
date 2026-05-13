@@ -32,6 +32,34 @@ app.get('/api/debug', (_, res) => {
   })
 })
 
+const WEBHOOK_VERIFY_TOKEN = 'goldentrans2026'
+
+app.get('/api/webhook', (req, res) => {
+  const mode = req.query['hub.mode']
+  const token = req.query['hub.verify_token']
+  const challenge = req.query['hub.challenge']
+  if (mode === 'subscribe' && token === WEBHOOK_VERIFY_TOKEN) {
+    console.log('✅ Webhook verified')
+    return res.status(200).send(challenge)
+  }
+  res.sendStatus(403)
+})
+
+app.post('/api/webhook', (req, res) => {
+  const body = req.body
+  if (body?.object === 'whatsapp_business_account') {
+    body.entry?.forEach(entry => {
+      entry.changes?.forEach(change => {
+        if (change.field === 'messages') {
+          console.log('📩 WhatsApp message:', JSON.stringify(change.value, null, 2))
+        }
+      })
+    })
+    return res.sendStatus(200)
+  }
+  res.sendStatus(404)
+})
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Golden Trans API listening on 0.0.0.0:${PORT}`)
 
