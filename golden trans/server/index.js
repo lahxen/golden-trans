@@ -20,15 +20,20 @@ app.use('/api/bookings', bookingRoutes)
 app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date() }))
 
 app.get('/api/debug', (_, res) => {
+  const waToken = process.env.WHATSAPP_TOKEN
+  const waPhoneId = process.env.WHATSAPP_PHONE_ID
   res.json({
     envVars: {
       PORT: !!process.env.PORT,
       MONGO_URI: !!process.env.MONGO_URI,
       EMAIL_USER: !!process.env.EMAIL_USER,
       EMAIL_PASS: !!process.env.EMAIL_PASS,
-      WHATSAPP_TOKEN: !!process.env.WHATSAPP_TOKEN,
-      WHATSAPP_PHONE_ID: !!process.env.WHATSAPP_PHONE_ID,
-    }
+      WHATSAPP_TOKEN: !!waToken,
+      WHATSAPP_PHONE_ID: !!waPhoneId,
+    },
+    waTokenLength: waToken ? waToken.length : 0,
+    waPhoneIdValue: waPhoneId || '(empty)',
+    allKeys: Object.keys(process.env).filter(k => k.includes('WHATSAPP') || k.includes('EMAIL'))
   })
 })
 
