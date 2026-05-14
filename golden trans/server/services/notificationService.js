@@ -10,13 +10,13 @@ function getTransporter() {
   const pass = process.env.EMAIL_PASS
   if (!user || !pass) return null
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: '64.233.184.108',
     port: 587,
     secure: false,
     requireTLS: true,
     auth: { user, pass },
-    family: 4,
-    connectionTimeout: 15000,
+    tls: { servername: 'smtp.gmail.com' },
+    connectionTimeout: 20000,
   })
 }
 
