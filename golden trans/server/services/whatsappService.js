@@ -25,7 +25,13 @@ export async function sendWAMessage(phone, message) {
         }),
       }
     )
-    return await res.json()
+    const data = await res.json()
+    if (data?.messages?.[0]?.id) {
+      console.log('✅ WhatsApp sent to', phone)
+    } else {
+      console.error('[WA ERROR]', JSON.stringify(data))
+    }
+    return data
   } catch (err) {
     console.error('[WA ERROR]', err.message)
     return { error: err.message }
