@@ -4,6 +4,7 @@ import heroImage from '../images/image01.png'
 import ChatComponent from './components/ChatComponent'
 import FlightTracker from './components/FlightTracker'
 import WhatsAppDispatch from './components/WhatsAppDispatch'
+import Reveal from './components/Reveal'
 import { TOP_ROUTES, VEHICLES, LANGUAGES } from './config/routes'
 import './App.css'
 
@@ -111,34 +112,36 @@ function App() {
       <main className="content-body">
 
         {/* ── SERVICES ── */}
-        <section className="section intro" id="services">
-          <div className="section-copy">
-            <h2>Premium Comfort for Your Morocco Journey</h2>
-            <p>
-              Our Mercedes V-Class provides spacious leather seating, climate control, and professional
-              chauffeurs with local expertise. Whether you need airport transfers, a daily city tour, or
-              a multi-day private trip, Golden Trans delivers polished service with every transfer.
-            </p>
-          </div>
-          <div className="feature-grid">
-            <article>
-              <h3>Impeccably Maintained</h3>
-              <p>Clean, safe and modern vehicles ready for your journey.</p>
-            </article>
-            <article>
-              <h3>Multilingual Chauffeurs</h3>
-              <p>Drivers fluent in English, French and Arabic — matched to your preferred language.</p>
-            </article>
-            <article>
-              <h3>Live Flight Tracking</h3>
-              <p>We monitor your flight in real time. Your driver waits — no extra charge, ever.</p>
-            </article>
-            <article>
-              <h3>Fixed-Rate Pricing</h3>
-              <p>Transparent, no-surprise fares for our Top 5 airport transfer routes.</p>
-            </article>
-          </div>
-        </section>
+        <Reveal>
+          <section className="section intro" id="services">
+            <div className="section-copy">
+              <h2>Premium Comfort for Your Morocco Journey</h2>
+              <p>
+                Our Mercedes V-Class provides spacious leather seating, climate control, and professional
+                chauffeurs with local expertise. Whether you need airport transfers, a daily city tour, or
+                a multi-day private trip, Golden Trans delivers polished service with every transfer.
+              </p>
+            </div>
+            <div className="feature-grid">
+              <article>
+                <h3>Impeccably Maintained</h3>
+                <p>Clean, safe and modern vehicles ready for your journey.</p>
+              </article>
+              <article>
+                <h3>Multilingual Chauffeurs</h3>
+                <p>Drivers fluent in English, French and Arabic — matched to your preferred language.</p>
+              </article>
+              <article>
+                <h3>Live Flight Tracking</h3>
+                <p>We monitor your flight in real time. Your driver waits — no extra charge, ever.</p>
+              </article>
+              <article>
+                <h3>Fixed-Rate Pricing</h3>
+                <p>Transparent, no-surprise fares for our Top 5 airport transfer routes.</p>
+              </article>
+            </div>
+          </section>
+        </Reveal>
 
         {/* ── CHAT ── */}
         {showChat && (
@@ -150,7 +153,7 @@ function App() {
         )}
 
         {/* ── BOOKING ── */}
-        <section id="booking" className="section booking-section">
+        <Reveal><section id="booking" className="section booking-section">
 
           {confirmedBooking ? (
             /* ══ CONFIRMATION VIEW ══ */
@@ -368,40 +371,42 @@ function App() {
               </form>
             </div>
           )}
-        </section>
+        </section></Reveal>
 
         {/* ── 3D CAR SHOWCASE ── */}
-        <section className="section" style={{ background: 'linear-gradient(180deg, #0f1a2e 0%, #0a0a0a 100%)' }}>
-          <div className="section-copy" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 2rem' }}>
-            <span className="eyebrow" style={{ color: '#D4AF37', fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 800 }}>Interactive 3D Showcase</span>
-            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 900, color: '#fff', marginTop: 8 }}>Explore Your Vehicle</h2>
-            <p style={{ color: '#94a3b8', lineHeight: 1.6 }}>Rotate, zoom, and inspect our premium fleet in full 3D before you book.</p>
-          </div>
-          <div className="max-w-3xl mx-auto">
-            <div style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(212,175,55,0.2)', background: '#0a0a0a' }}>
-              <model-viewer
-                src="https://cdn.jsdelivr.net/npm/threebox-plugin@2.1.9/examples/models/vehicles/car.glb"
-                alt="Golden Trans vehicle in 3D"
-                style={{ width: '100%', height: 'clamp(300px, 50vw, 500px)', display: 'block' }}
-                auto-rotate
-                auto-rotate-delay="500"
-                rotation-per-second="20deg"
-                camera-controls
-                camera-orbit="45deg 55deg 4.5m"
-                shadow-intensity="1"
-                exposure="0.7"
-                environment-image="neutral"
-                loading="lazy"
-                ar-status="not-presenting"
-              />
+        <Reveal>
+          <section className="section" style={{ background: 'linear-gradient(180deg, #0f1a2e 0%, #0a0a0a 100%)' }}>
+            <div className="section-copy" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 2rem' }}>
+              <span className="eyebrow" style={{ color: '#D4AF37', fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 800 }}>Interactive 3D Showcase</span>
+              <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 900, color: '#fff', marginTop: 8 }}>Explore Your Vehicle</h2>
+              <p style={{ color: '#94a3b8', lineHeight: 1.6 }}>Rotate, zoom, and inspect our premium fleet in full 3D before you book.</p>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 13, color: '#64748b' }}>
-              <span>🖱 Drag to rotate</span>
-              <span>🔍 Scroll to zoom</span>
-              <span>📱 Touch to explore</span>
+            <div className="max-w-3xl mx-auto">
+              <div style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(212,175,55,0.2)', background: '#0a0a0a' }}>
+                <model-viewer
+                  src="https://cdn.jsdelivr.net/npm/threebox-plugin@2.1.9/examples/models/vehicles/car.glb"
+                  alt="Golden Trans vehicle in 3D"
+                  style={{ width: '100%', height: 'clamp(300px, 50vw, 500px)', display: 'block' }}
+                  auto-rotate
+                  auto-rotate-delay="500"
+                  rotation-per-second="20deg"
+                  camera-controls
+                  camera-orbit="45deg 55deg 4.5m"
+                  shadow-intensity="1"
+                  exposure="0.7"
+                  environment-image="neutral"
+                  loading="lazy"
+                  ar-status="not-presenting"
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 13, color: '#64748b' }}>
+                <span>🖱 Drag to rotate</span>
+                <span>🔍 Scroll to zoom</span>
+                <span>📱 Touch to explore</span>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </Reveal>
 
         {/* ── FLEET ── */}
         <section id="fleet" className="section fleet-section">

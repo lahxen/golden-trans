@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import FleetCard from '../components/FleetCard'
 import TiltCard from '../components/TiltCard'
 import CarViewer3D from '../components/CarViewer3D'
+import Reveal from '../components/Reveal'
 import { fleet } from '../data/fleet'
 
 function Fleet() {
@@ -66,23 +67,43 @@ function Fleet() {
       </section>
 
       {/* ── FLEET GRID ── */}
-      <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="flex items-center gap-4 mb-10">
-          <div className="h-px flex-1 bg-gray-800" />
-          <span className="text-gray-500 text-xs uppercase tracking-widest font-semibold">
-            Hover over a card to see it in 3D
-          </span>
-          <div className="h-px flex-1 bg-gray-800" />
-        </div>
+      <Reveal>
+        <section className="max-w-7xl mx-auto px-6 py-16">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="h-px flex-1 bg-gray-800" />
+            <span className="text-gray-500 text-xs uppercase tracking-widest font-semibold">
+              Hover over a card to see it in 3D
+            </span>
+            <div className="h-px flex-1 bg-gray-800" />
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {fleet.map(vehicle => (
-            <TiltCard key={vehicle.id} maxTilt={6}>
-              <FleetCard vehicle={vehicle} />
-            </TiltCard>
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {fleet.map(vehicle => (
+              <TiltCard key={vehicle.id} maxTilt={6}>
+                <FleetCard vehicle={vehicle} />
+              </TiltCard>
+            ))}
+          </div>
+        </section>
+      </Reveal>
+
+      {/* ── CTA BANNER ── */}
+      <Reveal delay={100}>
+        <section className="border-t border-gray-800 py-20 px-6 text-center" style={{ backgroundColor: '#111' }}>
+          <h2 className="text-white text-3xl font-black mb-3">
+            Ready to book your transfer?
+          </h2>
+          <p className="text-gray-500 mb-8 text-base">
+            Fixed rates · Flight tracking · Professional drivers · All Morocco
+          </p>
+          <a
+            href="/booking"
+            className="inline-block bg-gold-500 hover:bg-gold-400 active:bg-gold-600 text-black font-black px-10 py-4 rounded-full text-base transition-colors uppercase tracking-widest no-underline"
+          >
+            Book Your Ride
+          </a>
+        </section>
+      </Reveal>
 
       {/* ── CTA BANNER ── */}
       <section className="border-t border-gray-800 py-20 px-6 text-center" style={{ backgroundColor: '#111' }}>
