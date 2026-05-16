@@ -1,8 +1,7 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { fleet } from '../data/fleet'
 import DealCard from './DealCard'
-import { useTranslation } from '../i18n/context.jsx'
-import { Briefcase } from 'lucide-react'
+import { slugFromCityName, getCityImage } from '../utils/cityImages'
 
 const COUNTRIES = [
   'Morocco', 'Algeria', 'Tunisia', 'Egypt', 'Libya',
@@ -27,7 +26,6 @@ function getBestFitId(passengers, luggage) {
 }
 
 function BookingStepOne({ onSelectDeal }) {
-  const { t } = useTranslation()
   const [form, setForm] = useState({
     name: '', phone: '', email: '', country: 'Morocco',
     pickup: '', dropoff: '',
@@ -51,13 +49,13 @@ function BookingStepOne({ onSelectDeal }) {
 
   function validate() {
     const e = {}
-    if (!form.name.trim()) e.name = t.errors.nameRequired
-    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 8) e.phone = t.errors.phoneRequired
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t.errors.emailInvalid
-    if (!form.pickup.trim()) e.pickup = t.errors.pickupRequired
-    if (!form.dropoff.trim()) e.dropoff = t.errors.dropoffRequired
-    if (!form.date) e.date = t.errors.dateRequired
-    if (!form.time) e.time = t.errors.timeRequired
+    if (!form.name.trim()) e.name = 'Full name is required'
+    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 8) e.phone = 'Valid phone number required'
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email format'
+    if (!form.pickup.trim()) e.pickup = 'Pickup location is required'
+    if (!form.dropoff.trim()) e.dropoff = 'Drop-off location is required'
+    if (!form.date) e.date = 'Pickup date is required'
+    if (!form.time) e.time = 'Pickup time is required'
     return e
   }
 
@@ -74,6 +72,11 @@ function BookingStepOne({ onSelectDeal }) {
     setSubmittedData({ ...form })
     setShowDeals(true)
   }
+
+  const bgImage = useMemo(() => {
+    const slug = slugFromCityName(form.dropoff) || slugFromCityName(form.pickup)
+    return getCityImage(slug)
+  }, [form.pickup, form.dropoff])
 
   const bestFitId = submittedData
     ? getBestFitId(submittedData.passengers, submittedData.luggage)
@@ -92,36 +95,49 @@ function BookingStepOne({ onSelectDeal }) {
   return (
     <div>
       {/* ── FORM ── */}
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate style={{
+        position: 'relative', overflow: 'hidden',
+      }}>
+        {bgImage && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 0,
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            opacity: 0.04, filter: 'blur(1px)',
+            transition: 'background-image 0.5s ease',
+            pointerEvents: 'none',
+          }} />
+        )}
+        <div style={{ position: 'relative', zIndex: 1 }}>
 
         {/* Customer Info */}
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 mb-6">
           <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-5">
-            {t.booking.customerInfo}
+            01 — Customer Information
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field id="name" label={t.booking.fullName} required error={errors.name}>
+            <Field id="name" label="Full Name" required error={errors.name}>
               <input
                 id="name" type="text" className={INPUT}
-                placeholder={t.booking.namePlaceholder}
+                placeholder="Your full name"
                 value={form.name} onChange={e => set('name', e.target.value)}
               />
             </Field>
-            <Field id="phone" label={t.booking.phone} required error={errors.phone}>
+            <Field id="phone" label="Phone / WhatsApp" required error={errors.phone}>
               <input
                 id="phone" type="tel" className={INPUT}
-                placeholder={t.booking.phonePlaceholder}
+                placeholder="+212 6XX XXX XXX"
                 value={form.phone} onChange={e => set('phone', e.target.value)}
               />
             </Field>
-            <Field id="email" label={t.booking.email} error={errors.email}>
+            <Field id="email" label="Email" error={errors.email}>
               <input
                 id="email" type="email" className={INPUT}
-                placeholder={t.booking.emailPlaceholder}
+                placeholder="you@example.com (optional)"
                 value={form.email} onChange={e => set('email', e.target.value)}
               />
             </Field>
-            <Field id="country" label={t.booking.country}>
+            <Field id="country" label="Country">
               <select
                 id="country" className={INPUT}
                 value={form.country} onChange={e => set('country', e.target.value)}
@@ -135,35 +151,35 @@ function BookingStepOne({ onSelectDeal }) {
         {/* Trip Info */}
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 mb-6">
           <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em] mb-5">
-            {t.booking.tripDetails}
+            02 — Trip Details
           </p>
           <div className="grid grid-cols-1 gap-4">
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field id="pickup" label={t.booking.pickup} required error={errors.pickup}>
+              <Field id="pickup" label="Pickup Location" required error={errors.pickup}>
                 <input
                   id="pickup" type="text" className={INPUT}
-                  placeholder={t.booking.pickupPlaceholder}
+                  placeholder="e.g. Casablanca Airport (CMN)"
                   value={form.pickup} onChange={e => set('pickup', e.target.value)}
                 />
               </Field>
-              <Field id="dropoff" label={t.booking.dropoff} required error={errors.dropoff}>
+              <Field id="dropoff" label="Drop-off Location" required error={errors.dropoff}>
                 <input
                   id="dropoff" type="text" className={INPUT}
-                  placeholder={t.booking.dropoffPlaceholder}
+                  placeholder="e.g. Marrakech City Center"
                   value={form.dropoff} onChange={e => set('dropoff', e.target.value)}
                 />
               </Field>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field id="date" label={t.booking.date} required error={errors.date}>
+              <Field id="date" label="Pickup Date" required error={errors.date}>
                 <input
                   id="date" type="date" className={INPUT} min={today}
                   value={form.date} onChange={e => set('date', e.target.value)}
                 />
               </Field>
-              <Field id="time" label={t.booking.time} required error={errors.time}>
+              <Field id="time" label="Pickup Time" required error={errors.time}>
                 <input
                   id="time" type="time" className={INPUT}
                   value={form.time} onChange={e => set('time', e.target.value)}
@@ -172,14 +188,14 @@ function BookingStepOne({ onSelectDeal }) {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Field id="passengers" label={t.booking.passengers} required>
+              <Field id="passengers" label="Passengers" required>
                 <select id="passengers" className={INPUT} value={form.passengers} onChange={e => set('passengers', e.target.value)}>
                   {Array.from({ length: 17 }, (_, i) => i + 1).map(n => (
                     <option key={n} value={String(n)}>{n}</option>
                   ))}
                 </select>
               </Field>
-              <Field id="luggage" label={t.booking.luggage} required>
+              <Field id="luggage" label="Luggage Pieces" required>
                 <select id="luggage" className={INPUT} value={form.luggage} onChange={e => set('luggage', e.target.value)}>
                   {Array.from({ length: 21 }, (_, i) => i).map(n => (
                     <option key={n} value={String(n)}>{n}</option>
@@ -187,11 +203,11 @@ function BookingStepOne({ onSelectDeal }) {
                 </select>
               </Field>
               <div className="col-span-2">
-                <p className={LABEL}>{t.booking.tripType} <span className="text-gold-500">*</span></p>
+                <p className={LABEL}>Trip Type <span className="text-gold-500">*</span></p>
                 <div className="flex gap-3 h-[46px]">
                   {[
-                    { val: 'one_way', label: t.vehicle.oneWay },
-                    { val: 'round_trip', label: t.vehicle.roundTrip },
+                    { val: 'one_way', label: 'One Way' },
+                    { val: 'round_trip', label: 'Round Trip' },
                   ].map(opt => (
                     <label
                       key={opt.val}
@@ -213,10 +229,10 @@ function BookingStepOne({ onSelectDeal }) {
               </div>
             </div>
 
-            <Field id="specialRequest" label={t.booking.specialRequest}>
+            <Field id="specialRequest" label="Special Request">
               <textarea
                 id="specialRequest" className={`${INPUT} resize-none`} rows={3}
-                placeholder={t.booking.specialPlaceholder}
+                placeholder="Child seats, wheelchair access, meet & greet, specific driver language..."
                 value={form.specialRequest} onChange={e => set('specialRequest', e.target.value)}
               />
             </Field>
@@ -227,8 +243,9 @@ function BookingStepOne({ onSelectDeal }) {
           type="submit"
           className="w-full bg-gold-500 hover:bg-gold-400 active:bg-gold-600 text-black font-black py-4 px-6 rounded-2xl text-base uppercase tracking-widest transition-colors"
         >
-          {t.booking.findVehicles}
+          🔍 Find Available Vehicles
         </button>
+        </div>
       </form>
 
       {/* ── DEALS SECTION ── */}
@@ -237,19 +254,19 @@ function BookingStepOne({ onSelectDeal }) {
           <div className="flex items-center gap-4 mb-4">
             <div className="h-px flex-1 bg-gray-800" />
             <p className="text-gold-500 text-xs font-black uppercase tracking-[0.2em]">
-              {t.booking.availableVehicles}
+              Available Vehicles
             </p>
             <div className="h-px flex-1 bg-gray-800" />
           </div>
 
           <div className="bg-gray-900/50 rounded-2xl border border-gray-800 p-4 mb-6 flex items-start gap-3">
-            <Briefcase size={24} className="text-gold-500 flex-shrink-0" />
+            <span className="text-2xl">🧳</span>
             <div>
               <p className="text-white font-bold text-sm">
                 {submittedData.pickup} → {submittedData.dropoff}
               </p>
               <p className="text-gray-400 text-xs mt-0.5">
-                {submittedData.date} at {submittedData.time} · {submittedData.passengers} {parseInt(submittedData.passengers) > 1 ? t.vehicle.passengers_plural : t.vehicle.passengers} · {submittedData.luggage} {parseInt(submittedData.luggage) > 1 ? t.vehicle.luggage_plural : t.vehicle.luggage} · {submittedData.tripType === 'round_trip' ? t.vehicle.roundTrip : t.vehicle.oneWay}
+                {submittedData.date} at {submittedData.time} · {submittedData.passengers} passenger{submittedData.passengers > 1 ? 's' : ''} · {submittedData.luggage} bag{submittedData.luggage > 1 ? 's' : ''} · {submittedData.tripType === 'round_trip' ? 'Round Trip' : 'One Way'}
               </p>
             </div>
             <button
@@ -257,7 +274,7 @@ function BookingStepOne({ onSelectDeal }) {
               onClick={() => setShowDeals(false)}
               className="ml-auto text-gray-500 hover:text-gray-300 text-xs font-semibold transition-colors flex-shrink-0"
             >
-              {t.booking.edit}
+              ← Edit
             </button>
           </div>
 
@@ -284,7 +301,7 @@ function BookingStepOne({ onSelectDeal }) {
           </div>
 
           <p className="text-center text-gray-600 text-xs mt-6">
-            {t.booking.pricesEstimate}
+            All prices are estimates. Exact fare confirmed by our team before departure.
           </p>
         </div>
       )}

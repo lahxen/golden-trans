@@ -6,6 +6,7 @@ import FlightTracker from './components/FlightTracker'
 import WhatsAppDispatch from './components/WhatsAppDispatch'
 import Reveal from './components/Reveal'
 import { TOP_ROUTES, VEHICLES, LANGUAGES } from './config/routes'
+import { getCityImage } from './utils/cityImages'
 import './App.css'
 
 const DEFAULT_FORM = {
@@ -240,7 +241,20 @@ function App() {
             </div>
           ) : (
             /* ══ BOOKING FORM ══ */
-            <div className="booking-card">
+            <div className="booking-card" style={{
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              {selectedRoute?.city && (
+                <div style={{
+                  position: 'absolute', inset: 0, zIndex: 0,
+                  backgroundImage: `url(${getCityImage(selectedRoute.city)})`,
+                  backgroundSize: 'cover', backgroundPosition: 'center',
+                  opacity: 0.08, filter: 'blur(2px)',
+                  transition: 'background-image 0.6s ease',
+                }} />
+              )}
+              <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="booking-copy">
                 <h2>Book Your Airport Transfer</h2>
                 <p>
@@ -255,7 +269,10 @@ function App() {
                 </ul>
 
                 {selectedRoute && (
-                  <div className="route-price-preview">
+                  <div className="route-price-preview" style={{
+                    background: selectedRoute.city ? `linear-gradient(135deg, rgba(212,175,55,0.15), rgba(0,0,0,0.4)), url(${getCityImage(selectedRoute.city)}) center/cover` : undefined,
+                    borderColor: 'rgba(212,175,55,0.3)',
+                  }}>
                     <div className="rp-route">{selectedRoute.label}</div>
                     <div className="rp-price">{selectedRoute.price} <span>MAD</span></div>
                     <div className="rp-duration">⏱ ~{selectedRoute.duration}</div>
@@ -369,6 +386,7 @@ function App() {
                   Request Booking
                 </button>
               </form>
+              </div>
             </div>
           )}
         </section></Reveal>

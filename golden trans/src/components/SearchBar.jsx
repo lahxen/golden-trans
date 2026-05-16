@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import AutocompleteInput from './AutocompleteInput'
 import { ALL_DESTINATIONS, AIRPORTS } from '../config/destinations'
 import { useTranslation } from '../i18n/context.jsx'
+import { slugFromCityName, getCityImage } from '../utils/cityImages'
 import { Navigation, Calendar, Clock, User, MapPin } from 'lucide-react'
 
 const SEARCH_ITEMS = [...AIRPORTS, ...ALL_DESTINATIONS]
@@ -14,6 +15,11 @@ export default function SearchBar({ onSearch }) {
   const [time, setTime] = useState('')
   const [passengers, setPassengers] = useState('2')
 
+  const bgImage = useMemo(() => {
+    const slug = slugFromCityName(dropoff) || slugFromCityName(pickup)
+    return getCityImage(slug)
+  }, [pickup, dropoff])
+
   const today = new Date().toISOString().split('T')[0]
 
   function handleSubmit(e) {
@@ -24,7 +30,14 @@ export default function SearchBar({ onSearch }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-md rounded-2xl shadow-gold border border-secondary/20 p-5 sm:p-6 lg:p-7 w-full max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="rounded-2xl shadow-gold border border-secondary/20 p-5 sm:p-6 lg:p-7 w-full max-w-4xl mx-auto" style={{
+      position: 'relative', overflow: 'hidden',
+      background: bgImage
+        ? `linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.88)), url(${bgImage}) center/cover`
+        : 'rgba(255,255,255,0.95)',
+      backdropFilter: 'blur(8px)',
+      transition: 'background-image 0.5s ease',
+    }}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-3.5">
         <div className="lg:col-span-2 sm:col-span-2">
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{t.hero.searchPlaceholder}</label>
