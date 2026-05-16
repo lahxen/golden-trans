@@ -6,72 +6,46 @@ import bookingRoutes from './routes/bookings.js'
 
 dotenv.config()
 
-console.log('🚀 Server script started')
-console.log('PORT:', process.env.PORT)
-
 const app  = express()
 const PORT = process.env.PORT || 5000
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/goldentrans'
 
-app.use(cors())
+// Middleware
+app.use(cors({ origin: ['http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean) }))
 app.use(express.json())
 
+// Routes
 app.use('/api/bookings', bookingRoutes)
 
-app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date() }))
-
+// Debug
 app.get('/api/debug', (_, res) => {
-  const waToken = process.env.WHATSAPP_TOKEN
-  const waPhoneId = process.env.WHATSAPP_PHONE_ID
   res.json({
     envVars: {
       PORT: !!process.env.PORT,
       MONGO_URI: !!process.env.MONGO_URI,
       EMAIL_USER: !!process.env.EMAIL_USER,
-      EMAIL_PASS: !!process.env.EMAIL_PASS,
-      WHATSAPP_TOKEN: !!waToken,
-      WHATSAPP_PHONE_ID: !!waPhoneId,
+      EMAIL_API_KEY: !!process.env.EMAIL_API_KEY,
+      WHATSAPP_TOKEN: !!process.env.WHATSAPP_TOKEN,
+      WHATSAPP_PHONE_ID: !!process.env.WHATSAPP_PHONE_ID,
     },
-    waTokenLength: waToken ? waToken.length : 0,
-    waPhoneIdValue: waPhoneId || '(empty)',
-    allKeys: Object.keys(process.env).filter(k => k.includes('WHATSAPP') || k.includes('EMAIL'))
+    waTokenLength: process.env.WHATSAPP_TOKEN ? process.env.WHATSAPP_TOKEN.length : 0,
+    waPhoneIdValue: process.env.WHATSAPP_PHONE_ID || '(empty)',
   })
 })
 
-const WEBHOOK_VERIFY_TOKEN = 'goldentrans2026'
+// Health check
+app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date() }))
 
-app.get('/api/webhook', (req, res) => {
-  const mode = req.query['hub.mode']
-  const token = req.query['hub.verify_token']
-  const challenge = req.query['hub.challenge']
-  if (mode === 'subscribe' && token === WEBHOOK_VERIFY_TOKEN) {
-    console.log('✅ Webhook verified')
-    return res.status(200).send(challenge)
-  }
-  res.sendStatus(403)
-})
-
-app.post('/api/webhook', (req, res) => {
-  const body = req.body
-  if (body?.object === 'whatsapp_business_account') {
-    body.entry?.forEach(entry => {
-      entry.changes?.forEach(change => {
-        if (change.field === 'messages') {
-          console.log('📩 WhatsApp message:', JSON.stringify(change.value, null, 2))
-        }
-      })
-    })
-    return res.sendStatus(200)
-  }
-  res.sendStatus(404)
-})
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Golden Trans API listening on 0.0.0.0:${PORT}`)
-
-  const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/goldentrans'
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log('✅ MongoDB connected'))
-    .catch(err => {
-      console.error('❌ MongoDB connection error:', err.message)
-    })
-})
+// Connect to MongoDB then start server
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log('✅ MongoDB connected')
+    app.listen(PORT, () => console.log(`🚀 Golden Trans API running on port ${PORT}`))
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err.message)
+    console.log('ℹ  Frontend will use localStorage fallback.')
+    // Start server anyway so health check works
+    app.listen(PORT, () => console.log(`⚠  Server running on port ${PORT} (no DB)`))
+  })

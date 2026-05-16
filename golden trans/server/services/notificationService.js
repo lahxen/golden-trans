@@ -1,24 +1,8 @@
-import nodemailer from 'nodemailer'
 import { sendWAMessage } from './whatsappService.js'
 import { generateWAMessage } from './aiService.js'
 
 const ADMIN_EMAIL = 'goldentrans68@gmail.com'
 const ADMIN_PHONE = '212726760517'
-
-function getTransporter() {
-  const user = process.env.EMAIL_USER
-  const pass = process.env.EMAIL_PASS
-  if (!user || !pass) return null
-  return nodemailer.createTransport({
-    host: '64.233.184.108',
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    auth: { user, pass },
-    tls: { servername: 'smtp.gmail.com' },
-    connectionTimeout: 20000,
-  })
-}
 
 function formatBookingHTML(booking) {
   return `
@@ -51,7 +35,7 @@ function formatBookingHTML(booking) {
 
 function formatBookingText(booking) {
   const lines = [
-    `🔔 NOUVELLE RÉSERVATION`,
+    `\u{1F514} NOUVELLE RÉSERVATION`,
     `Réf: ${booking.ref}`,
     `Client: ${booking.name}`,
     `Tél: ${booking.phone}`,
@@ -68,22 +52,34 @@ function formatBookingText(booking) {
   return lines.join('\n')
 }
 
-// ── Send email notification to admin ──
+// ── Send email via Resend API ──
 export async function sendEmailNotification(booking) {
-  const transporter = getTransporter()
-  if (!transporter) {
+  const apiKey = process.env.EMAIL_API_KEY
+  if (!apiKey) {
     console.log(`[EMAIL MOCK] New booking: ${booking.ref} — ${booking.name}`)
     return { mock: true }
   }
   try {
-    await transporter.sendMail({
-      from: `"Golden Trans" <${process.env.EMAIL_USER}>`,
-      to: ADMIN_EMAIL,
-      subject: `🔔 Nouvelle réservation — ${booking.name} (${booking.ref})`,
-      html: formatBookingHTML(booking),
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Golden Trans <onboarding@resend.dev>',
+        to: ADMIN_EMAIL,
+        subject: `Nouvelle réservation — ${booking.name} (${booking.ref})`,
+        html: formatBookingHTML(booking),
+      }),
     })
-    console.log(`✅ Email sent for booking ${booking.ref}`)
-    return { sent: true }
+    const data = await res.json()
+    if (data?.id) {
+      console.log(`✅ Email sent for booking ${booking.ref} (id: ${data.id})`)
+      return { sent: true }
+    }
+    console.error(`❌ Email failed: ${JSON.stringify(data)}`)
+    return { error: JSON.stringify(data) }
   } catch (err) {
     console.error(`❌ Email failed: ${err.message}`)
     return { error: err.message }
