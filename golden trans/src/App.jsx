@@ -370,6 +370,39 @@ function App() {
           )}
         </section>
 
+        {/* ── 3D CAR SHOWCASE ── */}
+        <section className="section" style={{ background: 'linear-gradient(180deg, #0f1a2e 0%, #0a0a0a 100%)' }}>
+          <div className="section-copy" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 2rem' }}>
+            <span className="eyebrow" style={{ color: '#D4AF37', fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 800 }}>Interactive 3D Showcase</span>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 900, color: '#fff', marginTop: 8 }}>Explore Your Vehicle</h2>
+            <p style={{ color: '#94a3b8', lineHeight: 1.6 }}>Rotate, zoom, and inspect our premium fleet in full 3D before you book.</p>
+          </div>
+          <div className="max-w-3xl mx-auto">
+            <div style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(212,175,55,0.2)', background: '#0a0a0a' }}>
+              <model-viewer
+                src="https://cdn.jsdelivr.net/npm/threebox-plugin@2.1.9/examples/models/vehicles/car.glb"
+                alt="Golden Trans vehicle in 3D"
+                style={{ width: '100%', height: 'clamp(300px, 50vw, 500px)', display: 'block' }}
+                auto-rotate
+                auto-rotate-delay="500"
+                rotation-per-second="20deg"
+                camera-controls
+                camera-orbit="45deg 55deg 4.5m"
+                shadow-intensity="1"
+                exposure="0.7"
+                environment-image="neutral"
+                loading="lazy"
+                ar-status="not-presenting"
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 13, color: '#64748b' }}>
+              <span>🖱 Drag to rotate</span>
+              <span>🔍 Scroll to zoom</span>
+              <span>📱 Touch to explore</span>
+            </div>
+          </div>
+        </section>
+
         {/* ── FLEET ── */}
         <section id="fleet" className="section fleet-section">
           <h2>Our Fleet</h2>
