@@ -131,7 +131,7 @@ function CityPage() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {POPULAR_CITIES.filter(c => c.slug !== slug).map(c => (
-            <Link key={c.slug} to={`/city/${c.slug}`}
+            <Link key={c.slug} to={`/cities/${c.slug}`}
               className="bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-xl py-4 px-3 text-center transition-all no-underline">
               <p className="text-white font-bold text-sm">{c.name}</p>
               <p className="text-gray-500 text-xs mt-0.5">{c.airport.split(' - ')[0]}</p>
